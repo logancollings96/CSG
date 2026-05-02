@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Watch Complication Setting Guide</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#06060e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Watch Guide">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Cinzel:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --void:#06060e;--deep:#0d0d18;--surface:#12121f;--card:#0e0e1a;--card-hi:#161626;
+  --gold:#c9a96e;--gold-dim:#8a6f3f;--gold-pale:rgba(201,169,110,0.12);
+  --silver:#c4cad8;--silver-dim:#4a4e6a;--moonlight:#eaecf5;--red:#c0604a;
+  --border:rgba(201,169,110,0.15);--border-dk:rgba(201,169,110,0.28);
+  --sat:env(safe-area-inset-top,0px);--sab:env(safe-area-inset-bottom,0px)
+}
+html,body{min-height:100dvh;background:var(--void);color:var(--silver);font-family:'Cormorant Garamond',Georgia,serif;font-size:16px;-webkit-font-smoothing:antialiased;overscroll-behavior-y:contain}
+.header{background:rgba(6,6,14,0.95);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--border);padding:calc(var(--sat) + 0.9rem) 1.2rem 0.9rem;display:flex;align-items:center;gap:0.9rem;position:sticky;top:0;z-index:100}
+.header-icon{font-size:1.4rem;flex-shrink:0;line-height:1}
+.header-text{flex:1}
+.header-brand{font-family:'Cinzel',serif;font-size:0.72rem;font-weight:500;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;line-height:1}
+.header-sub{font-size:0.62rem;color:var(--silver-dim);letter-spacing:0.06em;margin-top:3px;font-style:italic}
+.header-date{font-family:'Cinzel',serif;font-size:0.46rem;letter-spacing:0.12em;color:var(--silver-dim);text-align:right;line-height:1.5;text-transform:uppercase}
+.search-wrap{background:var(--deep);border-bottom:1px solid var(--border);padding:1rem 1.2rem}
+.search-eyebrow{font-family:'Cinzel',serif;font-size:0.48rem;letter-spacing:0.28em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:0.6rem}
+.search-row{display:flex;gap:0.5rem}
+.search-input{flex:1;background:var(--card);border:1px solid var(--border-dk);border-radius:2px;color:var(--moonlight);font-family:'Cinzel',serif;font-size:0.88rem;letter-spacing:0.12em;padding:0.7rem 0.9rem;outline:none;text-transform:uppercase;transition:border-color 0.2s}
+.search-input::placeholder{color:var(--silver-dim);font-size:0.62rem;letter-spacing:0.2em}
+.search-input:focus{border-color:var(--gold)}
+.search-btn{background:var(--gold);border:none;border-radius:2px;color:#06060e;font-family:'Cinzel',serif;font-size:0.52rem;letter-spacing:0.2em;padding:0 1.1rem;cursor:pointer;text-transform:uppercase;font-weight:600;white-space:nowrap;transition:background 0.2s}
+.search-btn:hover{background:#dfc07e}
+.filter-wrap{padding:0.7rem 1.2rem;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;scrollbar-width:none}
+.filter-wrap::-webkit-scrollbar{display:none}
+.filter-section{margin-bottom:0.5rem}
+.filter-label{font-family:'Cinzel',serif;font-size:0.42rem;letter-spacing:0.2em;color:var(--silver-dim);text-transform:uppercase;margin-bottom:0.35rem;opacity:0.7}
+.filter-row{display:flex;gap:0.35rem;white-space:nowrap}
+.chip{border:1px solid var(--border-dk);border-radius:2px;color:var(--silver-dim);font-family:'Cinzel',serif;font-size:0.44rem;letter-spacing:0.12em;padding:0.32rem 0.65rem;cursor:pointer;background:transparent;transition:all 0.15s;text-transform:uppercase;white-space:nowrap}
+.chip:hover{border-color:var(--gold);color:var(--gold)}
+.chip.active{background:var(--gold-pale);border-color:var(--gold);color:var(--gold)}
+.live-banner{background:var(--card);border:1px solid var(--border);margin:1rem 1.2rem;border-radius:2px;overflow:hidden}
+.live-banner-head{background:linear-gradient(90deg,rgba(201,169,110,0.15),rgba(201,169,110,0.05));border-bottom:1px solid var(--border);color:var(--gold);font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.25em;text-transform:uppercase;padding:0.55rem 1rem;display:flex;align-items:center;gap:0.5rem}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#90d890;animation:livePulse 2s ease-in-out infinite}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.live-grid{display:grid;grid-template-columns:repeat(3,1fr)}
+.live-item{padding:0.8rem 0.9rem;border-right:1px solid var(--border);border-bottom:1px solid var(--border)}
+.live-item:nth-child(3n){border-right:none}
+.live-item:nth-child(4),.live-item:nth-child(5),.live-item:nth-child(6){border-bottom:none}
+.live-label{font-family:'Cinzel',serif;font-size:0.42rem;letter-spacing:0.18em;color:var(--silver-dim);text-transform:uppercase;margin-bottom:0.3rem}
+.live-value{font-size:0.95rem;color:var(--silver);line-height:1.2}
+.live-value.accent{color:var(--gold)}
+.live-note{padding:0.6rem 1rem;font-size:0.75rem;color:var(--silver-dim);font-style:italic;border-top:1px solid var(--border)}
+.content{padding:0 1.2rem calc(2rem + var(--sab));max-width:600px;margin:0 auto}
+.col-header{display:flex;align-items:center;gap:0.8rem;margin:1.5rem 0 0.7rem}
+.col-line{height:1px;background:var(--border-dk);flex:1}
+.col-label{font-family:'Cinzel',serif;font-size:0.5rem;letter-spacing:0.25em;color:var(--gold-dim);text-transform:uppercase;flex-shrink:0;text-align:center}
+.watch-card{background:var(--card);border:1px solid var(--border);margin-bottom:0.7rem;border-radius:2px;overflow:hidden;animation:fadeUp 0.35s ease both;transition:border-color 0.2s}
+.watch-card:hover{border-color:var(--border-dk)}
+.watch-card-header{display:flex;cursor:pointer;user-select:none}
+.watch-img-wrap{width:90px;height:90px;flex-shrink:0;background:var(--deep);overflow:hidden;position:relative}
+.watch-img-wrap img{width:100%;height:100%;object-fit:contain;object-position:center;mix-blend-mode:lighten;transition:transform 0.4s ease;padding:4px}
+.watch-card:hover .watch-img-wrap img{transform:scale(1.06)}
+.watch-img-wrap .img-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:4px}
+.watch-img-wrap .img-fallback svg{width:76px;height:76px}
+.watch-meta{flex:1;padding:0.85rem 1rem;display:flex;flex-direction:column;justify-content:center;border-left:1px solid var(--border);min-width:0}
+.watch-ref{font-family:'Cinzel',serif;font-size:0.88rem;font-weight:500;color:var(--gold);letter-spacing:0.05em;line-height:1;margin-bottom:0.25rem}
+.watch-name{font-size:0.96rem;color:var(--moonlight);font-weight:300;line-height:1.25;margin-bottom:0.2rem}
+.watch-calibre{font-size:0.7rem;color:var(--silver-dim);font-style:italic}
+.watch-tags{display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.45rem}
+.watch-tag{background:var(--gold-pale);border:1px solid var(--border);color:var(--gold-dim);font-family:'Cinzel',serif;font-size:0.38rem;letter-spacing:0.1em;padding:0.15rem 0.4rem;text-transform:uppercase;border-radius:1px}
+.watch-chevron{width:34px;flex-shrink:0;display:flex;align-items:center;justify-content:center;color:var(--silver-dim);font-size:1.1rem;transition:transform 0.25s;border-left:1px solid var(--border);background:var(--deep)}
+.watch-card.open .watch-chevron{transform:rotate(90deg)}
+.complications-body{display:none;border-top:1px solid var(--border)}
+.watch-card.open .complications-body{display:block}
+.complication{border-bottom:1px solid var(--border)}
+.complication:last-child{border-bottom:none}
+.comp-header{display:flex;align-items:center;gap:0.8rem;padding:0.85rem 1rem;cursor:pointer;background:var(--surface);transition:background 0.15s;user-select:none}
+.comp-header:hover{background:rgba(201,169,110,0.05)}
+.comp-icon{width:30px;height:30px;flex-shrink:0;border-radius:50%;background:var(--gold-pale);border:1px solid var(--border);display:grid;place-items:center;font-size:0.85rem}
+.comp-info{flex:1;min-width:0}
+.comp-name{font-family:'Cinzel',serif;font-size:0.63rem;letter-spacing:0.12em;color:var(--gold);text-transform:uppercase}
+.comp-desc{font-size:0.78rem;color:var(--silver-dim);font-style:italic;margin-top:1px}
+.comp-arrow{color:var(--silver-dim);font-size:0.85rem;transition:transform 0.2s;flex-shrink:0}
+.complication.open .comp-arrow{transform:rotate(90deg)}
+.comp-body{display:none;padding:0 1rem 1rem;background:var(--card)}
+.complication.open .comp-body{display:block}
+.steps{margin-top:0.2rem}
+.step{display:flex;gap:0.9rem;padding:0.75rem 0;border-bottom:1px solid rgba(201,169,110,0.07)}
+.step:last-child{border-bottom:none;padding-bottom:0}
+.step-num{font-family:'Cinzel',serif;font-size:0.6rem;color:var(--gold-dim);min-width:1.4rem;padding-top:0.15rem;flex-shrink:0}
+.step-title{font-family:'Cinzel',serif;font-size:0.6rem;letter-spacing:0.12em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:0.3rem}
+.step-text{font-size:0.95rem;color:var(--silver);line-height:1.65}
+.step-text em{color:var(--gold);font-style:normal;font-weight:600}
+.step-text strong{color:var(--moonlight);font-weight:400}
+.warn-box{background:rgba(192,96,74,0.08);border:1px solid rgba(192,96,74,0.28);border-left:3px solid var(--red);padding:0.75rem 0.9rem;margin-top:0.8rem;font-size:0.88rem;color:#d4806a;line-height:1.65;border-radius:1px}
+.warn-box strong{color:#e09080;font-weight:400}
+.info-box{background:var(--gold-pale);border:1px solid var(--border);border-left:3px solid var(--gold-dim);padding:0.75rem 0.9rem;margin-top:0.8rem;font-size:0.88rem;color:var(--silver);line-height:1.65;border-radius:1px}
+.info-box strong{color:var(--gold);font-weight:400}
+.empty-state{text-align:center;padding:3rem 1.5rem}
+.empty-icon{font-size:2.2rem;margin-bottom:1rem;opacity:0.3}
+.empty-title{font-family:'Cinzel',serif;font-size:0.68rem;letter-spacing:0.22em;color:var(--gold-dim);text-transform:uppercase;margin-bottom:0.5rem}
+.empty-sub{font-size:0.92rem;color:var(--silver-dim);font-style:italic;line-height:1.7}
+.empty-sub a{color:var(--gold-dim)}
+.footer{text-align:center;padding:1.5rem 1.2rem calc(1rem + var(--sab));border-top:1px solid var(--border);font-size:0.72rem;color:var(--silver-dim);font-style:italic;line-height:1.8}
+.footer a{color:var(--gold-dim);text-decoration:none}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+</style>
+</head>
+<body>
+<div class="header">
+  <div class="header-icon">⌚</div>
+  <div class="header-text">
+    <div class="header-brand">Complication Setting Guide</div>
+    <div class="header-sub">High complication wristwatches · Instructions update automatically each day</div>
+  </div>
+  <div class="header-date" id="headerDate"></div>
+</div>
+<div class="search-wrap">
+  <div class="search-eyebrow">✦ Find your reference</div>
+  <div class="search-row">
+    <input class="search-input" id="searchInput" type="text" placeholder="e.g. 5396, 5726, 5270" maxlength="15" oninput="handleSearch(this.value)"/>
+    <button class="search-btn" onclick="handleSearch(document.getElementById('searchInput').value)">Search</button>
+  </div>
+</div>
+<div class="filter-wrap">
+  <div class="filter-section">
+    <div class="filter-label">By Complication</div>
+    <div class="filter-row" id="compFilterRow">
+      <button class="chip active" onclick="filterComp('all',this)">All</button>
+      <button class="chip" onclick="filterComp('perpetual',this)">Perpetual Cal.</button>
+      <button class="chip" onclick="filterComp('annual',this)">Annual Cal.</button>
+      <button class="chip" onclick="filterComp('moonphase',this)">Moon Phase</button>
+      <button class="chip" onclick="filterComp('chronograph',this)">Chronograph</button>
+      <button class="chip" onclick="filterComp('worldtime',this)">World Time</button>
+      <button class="chip" onclick="filterComp('travel',this)">Travel Time</button>
+      <button class="chip" onclick="filterComp('date',this)">Date Only</button>
+      <button class="chip" onclick="filterComp('celestial',this)">Celestial</button>
+      <button class="chip" onclick="filterComp('repeater',this)">Repeater</button>
+      <button class="chip" onclick="filterComp('simple',this)">Time Only</button>
+    </div>
+  </div>
+  <div class="filter-section" style="margin-bottom:0">
+    <div class="filter-label">By Collection</div>
+    <div class="filter-row" id="colFilterRow">
+      <button class="chip active" onclick="filterCol('all',this)">All Collections</button>
+      <button class="chip" onclick="filterCol('Grand Complications',this)">Grand Complications</button>
+      <button class="chip" onclick="filterCol('Complications',this)">Complications</button>
+      <button class="chip" onclick="filterCol('Nautilus',this)">Nautilus</button>
+      <button class="chip" onclick="filterCol('Aquanaut',this)">Aquanaut</button>
+      <button class="chip" onclick="filterCol('Calatrava',this)">Calatrava</button>
+      <button class="chip" onclick="filterCol('Cubitus',this)">Cubitus</button>
+      <button class="chip" onclick="filterCol('Golden Ellipse',this)">Golden Ellipse</button>
+      <button class="chip" onclick="filterCol('Gondolo',this)">Gondolo</button>
+      <button class="chip" onclick="filterCol('Twenty~4',this)">Twenty~4</button>
+      <button class="chip" onclick="filterCol('Pocket Watches',this)">Pocket Watches</button>
+    </div>
+  </div>
+</div>
+<div class="content" id="mainContent"></div>
+<div class="footer">
+  Setting instructions sourced from official manufacturer instruction booklets.<br>
+  All dates and moon phase data update automatically each day.<br>
+  For full manuals: <a href="https://www.patek.com/en/service/taking-care-of-your-watch/instructions-for-use" target="_blank">patek.com/instructions-for-use</a>
+</div>
+<script>
+
+const NOW = new Date();
+const FULL_MOONS = [
+  '2025-01-13','2025-02-12','2025-03-14','2025-04-13','2025-05-12','2025-06-11',
+  '2025-07-10','2025-08-09','2025-09-07','2025-10-07','2025-11-05','2025-12-04',
+  '2026-01-03','2026-02-01','2026-03-03','2026-04-02','2026-05-01','2026-05-31',
+  '2026-06-29','2026-07-29','2026-08-28','2026-09-26','2026-10-26','2026-11-24',
+  '2026-12-24','2027-01-22','2027-02-20','2027-03-22','2027-04-20','2027-05-20',
+].map(d => new Date(d));
+
+function getLastFullMoon(date) {
+  const today = new Date(date); today.setHours(0,0,0,0);
+  let last = null;
+  for (const fm of FULL_MOONS) {
+    const d = new Date(fm); d.setHours(0,0,0,0);
+    if (d <= today) last = d; else break;
+  }
+  return last;
+}
+function daysBetween(a, b) {
+  const x = new Date(a); x.setHours(0,0,0,0);
+  const y = new Date(b); y.setHours(0,0,0,0);
+  return Math.round((y - x) / 86400000);
+}
+function getMoonIllum(date) {
+  const syn = 29.530588853;
+  const ref = new Date('2000-01-06T18:14:00Z');
+  const age = (((date - ref) / 86400000) % syn + syn) % syn;
+  return Math.round((1 - Math.cos((age / syn) * 2 * Math.PI)) / 2 * 100);
+}
+function leapCycle(y) {
+  const r = y % 4;
+  if (r === 0) return 'IV (Leap Year)';
+  if (r === 1) return 'I'; if (r === 2) return 'II'; return 'III';
+}
+function fmtDate(d) {
+  return d.toLocaleDateString('en-AU', {day:'numeric',month:'long',year:'numeric'});
+}
+
+const lastFull = getLastFullMoon(NOW);
+const DSF = daysBetween(lastFull, NOW);
+const ILLUM = getMoonIllum(NOW);
+const DOW   = NOW.toLocaleDateString('en-AU', {weekday:'long'});
+const MONTH = NOW.toLocaleDateString('en-AU', {month:'long'});
+const DATE  = NOW.getDate();
+const YEAR  = NOW.getFullYear();
+const LYC   = leapCycle(YEAR);
+
+document.getElementById('headerDate').innerHTML =
+  DOW.slice(0,3).toUpperCase() + '<br>' + DATE + ' ' + MONTH.slice(0,3).toUpperCase() + ' ' + YEAR;
+
+// ── Instruction templates ────────────────────────────────────
+function moonSteps(pos) {
+  return [
+    {t:'Wind the watch first', s:'Fully wind the mainspring before making any adjustments. A fully wound movement ensures the complication mechanism responds correctly.'},
+    {t:'Locate the moon phase corrector', s:'A recessed push-button corrector is located on the case side at <em>' + pos + '</em>. Always use a <em>blunt stylus or wooden toothpick</em> — never a metal tool which can damage the mechanism.'},
+    {t:'Advance to full moon', s:'Press the corrector repeatedly until the moon disc shows the moon <em>perfectly centred and fully visible</em> in the aperture. This is the full moon reference position.'},
+    {t:'Press ' + DSF + ' times for today', s:'The last full moon was <em>' + fmtDate(lastFull) + '</em> — <em>' + DSF + ' day' + (DSF!==1?'s':'') + ' ago</em>. From the full moon position, press the corrector exactly <em>' + DSF + ' more time' + (DSF!==1?'s':'') + '</em> to reach today\'s phase.'},
+  ];
+}
+function moonInfo() {
+  return 'Today\'s moon is approximately <strong>' + ILLUM + '%</strong> illuminated. High-precision moon phase mechanisms (122-year calibres) require correction of only one day every 122 years. These instructions recalculate automatically every day.';
+}
+function annualSteps(mC, dC, wC, note) {
+  const n = note ? ' ' + note : '';
+  return [
+    {t:'Safe window only: 8 AM - 6 PM', s:'Only adjust the annual calendar between <em>8 AM and 6 PM</em>. The mechanism begins its overnight advance in the evening and must not be interrupted.'},
+    {t:'Set the month', s:'Press the month corrector (' + mC + ') to advance to <em>' + MONTH + '</em>.'},
+    {t:'Set the date', s:'Press the date corrector (' + dC + ') until the display shows <em>' + DATE + '</em>.'},
+    {t:'Set the day', s:'Press the day corrector (' + wC + ') until the display shows <em>' + DOW + '</em>.'},
+    {t:'Set the time', s:'Pull the crown to the time-setting position and set the correct hours and minutes. Push the crown firmly back in.' + n},
+  ];
+}
+function annualWarn() {
+  return 'Never adjust the annual calendar between <strong>6 PM and 8 AM</strong>. The calendar mechanism prepares its overnight advance during this window. Forcing the correctors during this period can bend the calendar levers.';
+}
+function perpetualSteps(lyC, mC, dC, wC, note) {
+  const n = note ? ' ' + note : '';
+  return [
+    {t:'Safe window only: 8 AM - 6 PM', s:'The perpetual calendar mechanism is under load during its overnight advance. Setting it during this period can permanently damage the gear train.'},
+    {t:'Set the leap year cycle', s:'Use the leap year corrector (' + lyC + ') to display <em>' + LYC + '</em>. Roman numerals I-III represent years after a leap year; IV indicates a leap year.'},
+    {t:'Set the month', s:'Press the month corrector (' + mC + ') to advance to <em>' + MONTH + '</em>.'},
+    {t:'Set the date', s:'Press the date corrector (' + dC + ') until the display shows <em>' + DATE + '</em>.'},
+    {t:'Set the day', s:'Press the day corrector (' + wC + ') until the display shows <em>' + DOW + '</em>.'},
+    {t:'Set the time', s:'Pull the crown to position 2 and set the time. Push firmly back.' + n},
+  ];
+}
+function perpetualWarn() {
+  return 'The perpetual calendar must be set in the <strong>exact sequence above</strong> (leap year then month then date then day). Setting out of order can desynchronise the programme wheel mechanism.';
+}
+function chronoSteps(startBtn, resetBtn, flyback) {
+  const s = [
+    {t:'Start', s:'Press the <em>' + startBtn + '</em> to start timing. The chronograph seconds hand begins moving.'},
+    {t:'Stop', s:'Press the <em>' + startBtn + '</em> again to stop. The hand freezes at the elapsed time.'},
+    {t:'Reset', s:'Press the <em>' + resetBtn + '</em> to return all chronograph hands to zero.'},
+  ];
+  if (flyback) s.push({t:'Flyback function', s:'Press the <em>' + resetBtn + '</em> while the chronograph is running to instantly reset and restart — useful for timing consecutive laps.'});
+  return s;
+}
+function dateSteps(screwdown) {
+  return [
+    screwdown
+      ? {t:'Unscrew the crown', s:'The crown is screw-down for water resistance. Rotate it <em>anticlockwise</em> until it releases before pulling.'}
+      : {t:'Pull the crown', s:'Pull the crown out to the <em>second position</em> (two clicks out).'},
+    {t:'Set the date', s:'Turn the crown to advance the date window to <em>' + DATE + '</em>. The mechanism clicks at each date — advance slowly.'},
+    {t:'Set the time', s:'Turn the crown to set the correct hours and minutes.'},
+    screwdown
+      ? {t:'Screw the crown back', s:'Push in fully then turn <em>clockwise</em> until snug. Do not overtighten. This restores water resistance.'}
+      : {t:'Push the crown in', s:'Push the crown fully back to the closed position.'},
+  ];
+}
+function dateWarn() {
+  return 'Do not adjust the date between <strong>9 PM and 3 AM</strong>. The quickset mechanism engages automatically during this window and forcing it can damage the date wheel.';
+}
+function travelSteps(corrPos, note) {
+  const n = note ? ' ' + note : '';
+  return [
+    {t:'Understand the display', s:'The travel time watch shows two time zones simultaneously — main dial for home time, secondary hand or subdial for destination.'},
+    {t:'Set home time', s:'Pull the crown to position 2 and set the current home time.'},
+    {t:'Adjust destination', s:'Use the corrector button (' + corrPos + ') to advance or retard the destination hand in <em>one-hour increments</em>.' + n},
+    {t:'Day/night indicator', s:'Verify the day/night (sun/moon) indicators show the correct AM/PM for both zones before wearing.'},
+  ];
+}
+function worldSteps() {
+  return [
+    {t:'Understand the display', s:'The outer city ring shows 24 world cities, each representing a time zone. The adjacent 24-hour ring shows AM or PM for each city.'},
+    {t:'Pull crown to position 1', s:'One click out. This unlocks the city ring.'},
+    {t:'Align your home city', s:'Rotate the crown until your home city aligns at the <em>12 o\'clock position</em>.'},
+    {t:'Set local time', s:'Pull to position 2 and set the correct local time. All 24 zones update simultaneously.'},
+    {t:'Reading other zones', s:'Find any city on the outer ring — the 24-hour scale alongside shows the current hour in that zone.'},
+  ];
+}
+
+// ── SVG watch faces (inline per collection) ──────────────────
+const SVGS = {
+  'grand': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gcg" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#c8a860"/><stop offset="100%" stop-color="#8a6830"/></radialGradient></defs><circle cx="40" cy="40" r="33" fill="#0e0e1a" stroke="#c9a96e" stroke-width="2"/><circle cx="40" cy="40" r="27" fill="#0a0a14"/><circle cx="40" cy="28" r="6" fill="none" stroke="#c9a96e" stroke-width="0.7" opacity="0.7"/><circle cx="28" cy="46" r="6" fill="none" stroke="#c9a96e" stroke-width="0.7" opacity="0.7"/><circle cx="52" cy="46" r="6" fill="none" stroke="#c9a96e" stroke-width="0.7" opacity="0.7"/><ellipse cx="40" cy="54" rx="7" ry="4" fill="#1a1a30" stroke="#c9a96e" stroke-width="0.7"/><circle cx="38" cy="54" r="2.5" fill="#c8c0a0"/><line x1="40" y1="40" x2="40" y2="26" stroke="url(#gcg)" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="52" y2="46" stroke="url(#gcg)" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="#c9a96e"/></svg>`,
+  'nautilus': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ng" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#3a6090"/><stop offset="100%" stop-color="#1a3050"/></radialGradient></defs><polygon points="20,8 60,8 72,20 72,60 60,72 20,72 8,60 8,20" fill="#2a3a4a" stroke="#c9a96e" stroke-width="1.5"/><ellipse cx="40" cy="40" rx="25" ry="25" fill="url(#ng)"/><line x1="15" y1="34" x2="65" y2="34" stroke="#4a7aaa" stroke-width="0.8" opacity="0.5"/><line x1="15" y1="40" x2="65" y2="40" stroke="#4a7aaa" stroke-width="0.8" opacity="0.5"/><line x1="15" y1="46" x2="65" y2="46" stroke="#4a7aaa" stroke-width="0.8" opacity="0.5"/><line x1="40" y1="40" x2="40" y2="22" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="52" y2="46" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="white"/></svg>`,
+  'aquanaut': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="ag" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#1a4030"/><stop offset="100%" stop-color="#0a2018"/></radialGradient></defs><rect x="10" y="10" width="60" height="60" rx="14" fill="#1a2a1a" stroke="#c9a96e" stroke-width="1.5"/><ellipse cx="40" cy="40" rx="24" ry="24" fill="url(#ag)"/><line x1="16" y1="34" x2="64" y2="34" stroke="#3a7050" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="40" x2="64" y2="40" stroke="#3a7050" stroke-width="0.8" opacity="0.5"/><line x1="16" y1="46" x2="64" y2="46" stroke="#3a7050" stroke-width="0.8" opacity="0.5"/><line x1="40" y1="40" x2="40" y2="23" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="52" y2="47" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="white"/></svg>`,
+  'calatrava': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cg" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#f0e8d0"/><stop offset="100%" stop-color="#d4c8a0"/></radialGradient></defs><circle cx="40" cy="40" r="33" fill="#1a1a2a" stroke="#c9a96e" stroke-width="1.5"/><circle cx="40" cy="40" r="27" fill="url(#cg)"/><line x1="40" y1="15" x2="40" y2="19" stroke="#4a4030" stroke-width="2"/><line x1="40" y1="61" x2="40" y2="65" stroke="#4a4030" stroke-width="2"/><line x1="15" y1="40" x2="19" y2="40" stroke="#4a4030" stroke-width="2"/><line x1="61" y1="40" x2="65" y2="40" stroke="#4a4030" stroke-width="2"/><line x1="40" y1="40" x2="40" y2="22" stroke="#2a2010" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="53" y2="47" stroke="#2a2010" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="#2a2010"/></svg>`,
+  'cubitus': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="cug" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#3a5070"/><stop offset="100%" stop-color="#1a2a40"/></radialGradient></defs><rect x="8" y="8" width="64" height="64" rx="10" fill="#1a2030" stroke="#c9a96e" stroke-width="1.5"/><rect x="14" y="14" width="52" height="52" rx="7" fill="url(#cug)"/><line x1="14" y1="34" x2="66" y2="34" stroke="#5a80a0" stroke-width="0.7" opacity="0.4"/><line x1="14" y1="40" x2="66" y2="40" stroke="#5a80a0" stroke-width="0.7" opacity="0.4"/><line x1="14" y1="46" x2="66" y2="46" stroke="#5a80a0" stroke-width="0.7" opacity="0.4"/><line x1="40" y1="40" x2="40" y2="23" stroke="white" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="53" y2="47" stroke="white" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="white"/></svg>`,
+  'golden': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="geg" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4b870"/><stop offset="100%" stop-color="#906030"/></radialGradient></defs><ellipse cx="40" cy="40" rx="28" ry="35" fill="#0e0e1a" stroke="#c9a96e" stroke-width="1.5"/><ellipse cx="40" cy="40" rx="22" ry="29" fill="url(#geg)"/><line x1="40" y1="14" x2="40" y2="18" stroke="#2a1a00" stroke-width="2"/><line x1="40" y1="62" x2="40" y2="66" stroke="#2a1a00" stroke-width="2"/><line x1="40" y1="40" x2="40" y2="21" stroke="#1a0a00" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="52" y2="48" stroke="#1a0a00" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="#1a0a00"/></svg>`,
+  'gondolo': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="gog" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#c8b080"/><stop offset="100%" stop-color="#806040"/></radialGradient></defs><rect x="16" y="12" width="48" height="56" rx="16" fill="#0e0e1a" stroke="#c9a96e" stroke-width="1.5"/><rect x="20" y="16" width="40" height="48" rx="13" fill="url(#gog)"/><line x1="40" y1="40" x2="40" y2="22" stroke="#1a0a00" stroke-width="1.8" stroke-linecap="round"/><line x1="40" y1="40" x2="52" y2="48" stroke="#1a0a00" stroke-width="1.4" stroke-linecap="round"/><circle cx="40" cy="40" r="2" fill="#1a0a00"/></svg>`,
+  'twenty4': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="t4g" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4a0b0"/><stop offset="100%" stop-color="#904060"/></radialGradient></defs><rect x="22" y="8" width="36" height="64" rx="10" fill="#0e0e1a" stroke="#c9a96e" stroke-width="1.5"/><rect x="26" y="12" width="28" height="56" rx="8" fill="url(#t4g)"/><circle cx="40" cy="18" r="1.5" fill="white" opacity="0.9"/><circle cx="40" cy="62" r="1.5" fill="white" opacity="0.9"/><line x1="40" y1="40" x2="40" y2="25" stroke="white" stroke-width="1.5" stroke-linecap="round"/><line x1="40" y1="40" x2="48" y2="47" stroke="white" stroke-width="1.2" stroke-linecap="round"/><circle cx="40" cy="40" r="1.5" fill="white"/></svg>`,
+  'pocket': `<svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="pg" cx="40%" cy="35%" r="60%"><stop offset="0%" stop-color="#d4c060"/><stop offset="100%" stop-color="#806800"/></radialGradient></defs><rect x="33" y="2" width="14" height="10" rx="3" fill="#c9a96e"/><circle cx="40" cy="46" r="30" fill="#1a1400" stroke="#c9a96e" stroke-width="2"/><circle cx="40" cy="46" r="24" fill="url(#pg)"/><line x1="40" y1="25" x2="40" y2="29" stroke="#2a1a00" stroke-width="2.5"/><line x1="40" y1="63" x2="40" y2="67" stroke="#2a1a00" stroke-width="2.5"/><line x1="40" y1="46" x2="40" y2="29" stroke="#1a0a00" stroke-width="2" stroke-linecap="round"/><line x1="40" y1="46" x2="54" y2="54" stroke="#1a0a00" stroke-width="1.5" stroke-linecap="round"/><circle cx="40" cy="46" r="2.5" fill="#1a0a00"/></svg>`,
+};
+function watchSVG(family) {
+  const key = (family||'calatrava').toLowerCase().replace(/[^a-z0-9]/g,'');
+  if (SVGS[key]) return SVGS[key];
+  if (key.includes('nautilus')) return SVGS.nautilus;
+  if (key.includes('aquanaut')) return SVGS.aquanaut;
+  if (key.includes('calatrava')) return SVGS.calatrava;
+  if (key.includes('grand')) return SVGS.grand;
+  if (key.includes('cubitus')) return SVGS.cubitus;
+  if (key.includes('golden')) return SVGS.golden;
+  if (key.includes('gondolo')) return SVGS.gondolo;
+  if (key.includes('twenty')) return SVGS.twenty4;
+  if (key.includes('pocket')) return SVGS.pocket;
+  if (key.includes('complication')) return SVGS.grand;
+  return SVGS.calatrava;
+}
+
+// ── Watch database ───────────────────────────────────────────
+const STD_PERP   = ['3-4 o\'clock','10-11 o\'clock','4-5 o\'clock','8-9 o\'clock'];
+const STD_ANNUAL = ['8-9 o\'clock','4-5 o\'clock','10-11 o\'clock'];
+function mp(p) { return {icon:'🌙', name:'Moon Phase', desc:'Moon phase aperture', steps:moonSteps(p||'4-5 o\'clock'), info:moonInfo()}; }
+function perp(extra) { return {icon:'📅', name:'Perpetual Calendar', desc:'Day, date, month, leap year', steps:perpetualSteps(...STD_PERP, extra||''), warn:perpetualWarn()}; }
+function ann(extra) { return {icon:'📅', name:'Annual Calendar', desc:'Day, date, month — self-adjusting except Feb/Mar', steps:annualSteps(...STD_ANNUAL, extra||''), warn:annualWarn()}; }
+function dt(screw) { return {icon:'📅', name:'Date Display', desc:'Date window', steps:dateSteps(screw||false), warn:dateWarn()}; }
+function chrono(s,r,fly) { return {icon:'⏱', name:'Chronograph', desc:'Elapsed time measurement', steps:chronoSteps(s,r,fly||false)}; }
+function flyback(s,r) { return {icon:'⏱', name:'Flyback Chronograph', desc:'Flyback — instant reset and restart', steps:chronoSteps(s,r,true), info:'Flyback allows simultaneous stop-reset-start with a single press during an ongoing measurement.'}; }
+
+const COLLECTIONS = [
+  // ── GRAND COMPLICATIONS ──────────────────────────────────────────────────
+  {name:'Grand Complications — Perpetual Calendar', family:'Grand Complications', watches:[
+    {ref:'5320G-011', name:'Perpetual Calendar Retrograde', calibre:'Cal. 240 Q', svg:'grand', imgId:'202297',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','Retrograde Date'],
+     complications:[mp('4-5 o\'clock'), {icon:'📅',name:'Perpetual Calendar',desc:'Retrograde date — snaps to 1 at month end',steps:perpetualSteps(...STD_PERP,'The retrograde date hand snaps back to 1 automatically at month end — do not force it.'),warn:perpetualWarn()}]},
+    {ref:'5327G-001 / 5327R-001', name:'Perpetual Calendar', calibre:'Cal. 240 Q', svg:'grand', imgId:'202285',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase'],
+     complications:[mp(), perp()]},
+    {ref:'7140G-001 / 7140R-001', name:'Ladies\' Perpetual Calendar', calibre:'Cal. 240 Q', svg:'grand',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','Ladies'],
+     complications:[mp(), perp()]},
+    {ref:'5236P-001 / 5236P-010 / 5236P-011', name:'Perpetual Calendar — Split Seconds', calibre:'Cal. 26-330 S QA', svg:'grand', imgId:'202386',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','122-Year Moon'],
+     complications:[{icon:'🌙',name:'Moon Phase (122-Year Precision)',desc:'Only 1 day deviation per 122 years',steps:moonSteps('4-5 o\'clock'),info:'Today: ~' + ILLUM + '% illuminated. This calibre requires no practical correction within your lifetime.'}, perp()]},
+    {ref:'6159G-001', name:'Perpetual Calendar Retrograde', calibre:'Cal. 26-330 S QR', svg:'grand', imgId:'263289',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','122-Year Moon','Retrograde'],
+     complications:[{icon:'🌙',name:'Moon Phase (122-Year Precision)',desc:'270° retrograde date, 122-year moon',steps:moonSteps('4-5 o\'clock'),info:'Today: ~' + ILLUM + '% illuminated. No practical correction needed within your lifetime.'},{icon:'📅',name:'Perpetual Calendar',desc:'270° retrograde date hand',steps:perpetualSteps(...STD_PERP,'The retrograde date hand flies back to 1 at month end automatically.'),warn:perpetualWarn()}]},
+    {ref:'5160/500R-001', name:'Perpetual Calendar Retrograde — Enamel', calibre:'Cal. 240 Q', svg:'grand', imgId:'202489',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','Enamel Dial'],
+     complications:[mp(), {icon:'📅',name:'Perpetual Calendar',desc:'Retrograde date with enamel dial',steps:perpetualSteps(...STD_PERP),warn:perpetualWarn()}]},
+    {ref:'5327G / 5160 — All Perpetual Variants', name:'Perpetual Calendar (All Metal Variants)', calibre:'Cal. 240 Q / 26-330 S Q', svg:'grand', imgId:'202285',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','All Metals'],
+     complications:[mp(), perp('Setting procedure is identical across white gold, rose gold, yellow gold, and platinum variants.')]},
+  ]},
+
+  {name:'Grand Complications — Perpetual Cal. Chronograph', family:'Grand Complications', watches:[
+    {ref:'5270/1R-001 / 5270J-001 / 5270P-014 / 5270P-015 / 5270P-016 / 5270P-017', name:'Perpetual Calendar Chronograph', calibre:'Cal. CH 29-535 PS Q', svg:'grand', imgId:'202334',
+     tags:['perpetual','chronograph','moonphase'],tagLabels:['Perpetual Cal.','Chronograph','Moon Phase'],
+     complications:[mp(), perp(), {icon:'⏱',name:'Chronograph',desc:'Column-wheel',steps:chronoSteps('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock',false),info:'Cal. CH 29-535 PS Q uses a column-wheel for a precise, crisp pusher feel.'}]},
+    {ref:'5271P-010 / 5271/11P-010 / 5271/12P-010', name:'Perpetual Calendar Chronograph — Enamel', calibre:'Cal. CH 29-535 PS Q', svg:'grand',
+     tags:['perpetual','chronograph','moonphase'],tagLabels:['Perpetual Cal.','Chronograph','Enamel Dial'],
+     complications:[mp(), perp(), chrono('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock',false)]},
+    {ref:'5308G-001', name:'Quadruple Complication', calibre:'Cal. R CHR 27 PS QI (799 parts)', svg:'grand', imgId:'262947',
+     tags:['perpetual','chronograph','moonphase','repeater'],tagLabels:['Perpetual Cal.','Split-Seconds','Minute Repeater','Moon Phase'],
+     complications:[
+       mp(),
+       {icon:'📅',name:'Instantaneous Perpetual Calendar',desc:'All displays jump simultaneously at midnight',steps:perpetualSteps(...STD_PERP,'This calibre uses instantaneous jump — all displays advance simultaneously at midnight.'),warn:perpetualWarn()},
+       {icon:'⏱',name:'Split-Seconds Chronograph',desc:'Rattrapante — times two simultaneous intervals',steps:[{t:'Start',s:'Press the <em>top pusher at 2 o\'clock</em> to start both chronograph and split-seconds hands.'},{t:'Split',s:'Press the <em>crown-integrated push-piece</em> to stop the split-seconds hand at an intermediate time while the main hand continues.'},{t:'Resume split',s:'Press the same <em>crown push-piece</em> again to snap the split hand back to the main hand.'},{t:'Stop and reset',s:'Press the <em>top pusher</em> to stop. Press the <em>bottom pusher at 4 o\'clock</em> to reset all hands to zero.'}],info:'799 components. Two patented technologies: anti-backlash wheel and split-seconds isolation system.'},
+       {icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes on demand',steps:[{t:'Activate',s:'Slide the repeater slide on the case side fully towards the crown and release.'},{t:'Listen',s:'Hours strike first (low tone), then quarter hours (low-high double), then remaining minutes (high tone). Example: 10:47 = 10 low, 3 double, 2 high.'},{t:'Do not interrupt',s:'Allow the full sequence to complete. Interrupting mid-strike stresses the spring and hammer.'}],warn:'Only activate the minute repeater when the mainspring is well wound.'},
+     ]},
+    {ref:'5204G-001 / 5204G-010', name:'Split-Seconds Perpetual Calendar Chronograph', calibre:'Cal. CHR 29-535 PS Q', svg:'grand', imgId:'4779',
+     tags:['perpetual','chronograph','moonphase'],tagLabels:['Perpetual Cal.','Split-Seconds','Moon Phase'],
+     complications:[mp(), perp(), {icon:'⏱',name:'Split-Seconds Chronograph',desc:'Rattrapante',steps:[{t:'Start',s:'Press the <em>top pusher at 2 o\'clock</em> to start both hands.'},{t:'Split',s:'Press the <em>crown push-piece</em> to stop the split-seconds hand.'},{t:'Resume and reset',s:'Press again to rejoin, then use <em>bottom pusher at 4 o\'clock</em> to reset.'}]}]},
+    {ref:'5370R-001', name:'Split-Seconds Chronograph (Rose Gold)', calibre:'Cal. CHR 29-535 PS', svg:'grand', imgId:'263286',
+     tags:['chronograph'],tagLabels:['Split-Seconds Chrono','New 2025'],
+     complications:[{icon:'⏱',name:'Split-Seconds Chronograph',desc:'Grand Feu enamel dial, rattrapante',steps:[{t:'Start',s:'Press the <em>top pusher at 2 o\'clock</em>.'},{t:'Split',s:'Press the <em>crown-integrated split-seconds pusher</em>.'},{t:'Resume and reset',s:'Press again to rejoin, then <em>bottom pusher at 4 o\'clock</em> to reset.'}],info:'2025 rose gold model. Two-tone Grand Feu enamel dial handcrafted on 18k gold.'}]},
+  ]},
+
+  {name:'Grand Complications — Celestial & Sky Moon', family:'Grand Complications', watches:[
+    {ref:'6102P-001 / 6102R-001', name:'Celestial', calibre:'Cal. 240 LU CL C', svg:'grand', imgId:'202099',
+     tags:['celestial','moonphase'],tagLabels:['Celestial','Sky Chart','Sidereal Time','Moon Phase'],
+     complications:[{icon:'✨',name:'Sky Chart and Moon Phase',desc:'Rotating sapphire disc with sidereal sky map',steps:[{t:'Wind the watch',s:'Wind fully before any adjustment.'},{t:'Crown at 4 o\'clock — clockwise = Sky chart',s:'Pull the crown at 4 o\'clock and turn clockwise to rotate the sky chart disc.'},{t:'Align sky index to S meridian',s:'Rotate until the sky-chart pointer aligns with the S meridian marker at 12 o\'clock.'},{t:'Advance by Patek calculator',s:'Visit patek.com/settings and enter today\'s date and your latitude for the exact number of graduation steps to advance.'},{t:'Moon disc — anticlockwise',s:'Turn the crown anticlockwise to adjust the moon disc separately. Align full moon to the S position, then advance per the calculator.'},{t:'Crown at 2 o\'clock sets time',s:'Use the 2 o\'clock crown exclusively for setting hours and minutes.'}],warn:'If uncertain about the sky disc adjustment, contact your authorised retailer.',info:'The sky chart rotates once per sidereal day (23h 56m 4s), showing the night sky as seen from 48 degrees north latitude.'}]},
+    {ref:'6104R-001 / 6104P-010 / 6104/11P-010 / 6104/12P-010 / 6104/13P-010 / 6105G-001', name:'Celestial (All Variants)', calibre:'Cal. 240 LU CL C', svg:'grand', imgId:'5367',
+     tags:['celestial','moonphase'],tagLabels:['Celestial','Sky Chart','All Variants'],
+     complications:[{icon:'✨',name:'Sky Chart and Moon Phase',desc:'Same setting procedure as Ref. 6102 — see above',steps:[{t:'Setting procedure',s:'Identical to Ref. 6102. Pull the <em>4 o\'clock crown clockwise</em> for sky chart, <em>anticlockwise</em> for moon disc. Use the <em>2 o\'clock crown</em> for time. Refer to patek.com/settings for exact graduation counts.'}],info:'All Celestial variants use the same Cal. 240 LU CL C and identical setting procedure.'}]},
+    {ref:'6002R-001', name:'Sky Moon Tourbillon', calibre:'Cal. R TO 27 QR SID LU CL (686 parts)', svg:'grand', imgId:'7308',
+     tags:['celestial','perpetual','moonphase','repeater'],tagLabels:['12 Complications','Perpetual Cal.','Sky Moon','Minute Repeater','Tourbillon'],
+     complications:[
+       {icon:'📅',name:'Perpetual Calendar (Dial Side)',desc:'12 complications — set in strict sequence',steps:[{t:'Use the dedicated setting stylus',s:'This watch is supplied with a setting stylus. Always use this tool — a pen or toothpick can permanently damage the corrector buttons.'},{t:'Preparatory step',s:'Pull the winding crown at 4 o\'clock and rotate clockwise until the flyback hand advances one day. Set hands to 6 AM.'},{t:'Reset date to 1',s:'Activate the corrector between 11-12 o\'clock until the flyback date hand points to 1.'},{t:'Set leap year and month',s:'Activate the corrector between 3-4 o\'clock — first set leap year cycle to <em>' + LYC + '</em>, then advance to month <em>' + MONTH + '</em>.'},{t:'Set date to ' + DATE,s:'Use the corrector between 11-12 o\'clock to advance the flyback hand to <em>' + DATE + '</em>.'},{t:'Correct day to ' + DOW,s:'Use the corrector between 6-7 o\'clock to display <em>' + DOW + '</em>.'},{t:'Set moon phase',s:'Use the corrector between 5-6 o\'clock to advance the moon age hand to the full moon marker, then press <em>' + DSF + ' more time' + (DSF!==1?'s':'') + '</em>.'}],warn:'Set in the exact sequence above. Out-of-order setting can desynchronise the 12-complication programme wheel.'},
+       {icon:'✨',name:'Sky Moon (Caseback)',desc:'Star chart and sidereal moon on caseback',steps:[{t:'Access the sky side',s:'Flip the watch to view the sky-chart caseback.'},{t:'Clockwise = sky chart',s:'Turn the 4 o\'clock crown clockwise to adjust the sky chart.'},{t:'Align moon to S meridian',s:'When moon shows full, align the moon index with the S meridian. Use patek.com/settings/sky-moon-tourbillon for exact counts.'},{t:'Anticlockwise = sky index',s:'Turn the same crown anticlockwise to adjust the sky-chart index independently.'}]},
+     ]},
+  ]},
+
+  {name:'Grand Complications — Repeaters, Alarms & Other', family:'Grand Complications', watches:[
+    {ref:'5374G-001 / 5374/300P-001 / 5374/400P-001', name:'Minute Repeater Perpetual Calendar', calibre:'Cal. R 27 Q', svg:'grand', imgId:'202268',
+     tags:['perpetual','moonphase','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Moon Phase'],
+     complications:[mp(), perp(), {icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes on demand',steps:[{t:'Activate',s:'Slide the repeater slide towards the crown and release to trigger the chime sequence.'},{t:'Listen and count',s:'Hours (low gong), quarter hours (low-high double), minutes (high gong). Example: 3:17 = 3 low, 0 double, 2 high.'},{t:'Do not interrupt',s:'Let the chime complete. Stopping mid-sequence stresses the spring and hammer.'}],warn:'Activate the minute repeater only when the mainspring is well wound.'}]},
+    {ref:'5531G-001 / 5531G-010', name:'World Time Minute Repeater', calibre:'Cal. RTO 27 PS', svg:'grand', imgId:'5938',
+     tags:['worldtime','repeater'],tagLabels:['World Time','Minute Repeater'],
+     complications:[{icon:'🌍',name:'World Time',desc:'24 time zones simultaneously',steps:worldSteps()},{icon:'🔔',name:'Minute Repeater',desc:'Chimes on demand',steps:[{t:'Activate',s:'Slide the repeater slide towards the crown and release.'},{t:'Listen',s:'Hours (low), quarter hours (low-high double), minutes (high).'}],warn:'Only activate when mainspring is well wound.'}]},
+    {ref:'5520RG-001', name:'Alarm Travel Time', calibre:'Cal. AL 30-255 PS', svg:'grand', imgId:'202259',
+     tags:['travel','repeater'],tagLabels:['Alarm','Travel Time'],
+     complications:[{icon:'⏰',name:'Alarm',desc:'Mechanical alarm with audible strike',steps:[{t:'Set alarm time',s:'Pull crown to position 1 (one click). Turn to advance the alarm hand to the desired time.'},{t:'Activate the alarm',s:'Engage the alarm on/off pusher on the case side. A small indicator on the dial confirms the alarm is armed.'},{t:'Alarm sounds',s:'At the set time, the mechanical hammer strikes the gong for approximately 30 seconds.'}],info:'Dual-mainspring system — one spring for the movement, one dedicated to the alarm. The alarm never depletes the going train.'}, {icon:'✈️', name:'Travel Time', desc:'Local and home time with date', steps:travelSteps('pusher at 4 o\'clock','The date display updates automatically when advancing across midnight.')}]},
+    {ref:'5470P-001', name:'Perpetual Calendar Minute Repeater', calibre:'Cal. R 27 Q', svg:'grand', imgId:'202270',
+     tags:['perpetual','moonphase','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Moon Phase'],
+     complications:[mp(), perp(), {icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes',steps:[{t:'Activate',s:'Slide the repeater slide towards the crown and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Activate only when fully wound.'}]},
+    {ref:'5303R-001 / 5304/301R-001', name:'Minute Repeater Tourbillon', calibre:'Cal. TO 30 R REC 10J PS IRM', svg:'grand', imgId:'202308',
+     tags:['repeater'],tagLabels:['Minute Repeater','Tourbillon','Power Reserve'],
+     complications:[{icon:'🔔',name:'Minute Repeater',desc:'Chimes on demand with visible tourbillon',steps:[{t:'Wind fully first',s:'Wind the movement fully via the crown before activating the repeater.'},{t:'Activate slide',s:'Slide the repeater slide towards the crown and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when power reserve shows at least half full.'}]},
+    {ref:'6301P-001', name:'Perpetual Calendar Minute Repeater (Platinum)', calibre:'Cal. R 27 Q', svg:'grand', imgId:'202069',
+     tags:['perpetual','moonphase','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Moon Phase','Platinum'],
+     complications:[mp(), perp(), {icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes',steps:[{t:'Activate',s:'Slide the repeater slide towards the crown and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when the mainspring is fully wound.'}]},
+    {ref:'6300GR-001 / 6300/400G-001 / 6300/401G-001 / 6300/403G-001', name:'Grande Sonnerie (All Variants)', calibre:'Cal. GS 36-750 PS IRM', svg:'grand', imgId:'5863',
+     tags:['repeater'],tagLabels:['Grande Sonnerie','Minute Repeater','Westminster Chimes'],
+     complications:[{icon:'🔔',name:'Grande Sonnerie / Minute Repeater',desc:'Automatic striking with Westminster chimes',steps:[{t:'Sonnerie modes',s:'The grande sonnerie strikes the full time (hours and quarters) automatically at each quarter. Use the slide on the case side to select Grande Sonnerie, Petite Sonnerie (quarters only), or Silent mode.'},{t:'Minute repeater',s:'In any mode, sliding the repeater slide activates an on-demand chime of the exact time in hours, quarters, and minutes.'},{t:'Do not interrupt',s:'Allow the full chime sequence to complete. Interrupting mid-strike stresses the gongs and hammers.'}],warn:'The grande sonnerie mechanism requires a fully wound mainspring. Only change modes when the watch is fully wound.'}]},
+    {ref:'5373P-001', name:'Perpetual Calendar Tourbillon', calibre:'Cal. TO 28-20 REC PS IRM', svg:'grand', imgId:'4793',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Tourbillon','Moon Phase'],
+     complications:[mp(), perp(), {icon:'⚙️',name:'Tourbillon',desc:'Visible 60-second tourbillon cage',steps:[{t:'Wind by hand',s:'The tourbillon calibre is hand-wound. Wind gently via the crown until resistance is felt.'},{t:'Stop-seconds',s:'Pulling the crown stops the tourbillon for precise time synchronisation.'}],info:'The tourbillon cage makes one full rotation per minute, compensating for the effects of gravity on the escapement.'}]},
+    {ref:'5260/1455R-001 / 5260/355R-001', name:'Advanced Research Perpetual Calendar', calibre:'Cal. 240 Q AR', svg:'grand', imgId:'202376',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Advanced Research','Moon Phase'],
+     complications:[mp(), {icon:'📅',name:'Perpetual Calendar',desc:'Advanced Research — Spiromax balance, Pulsomax escapement',steps:perpetualSteps(...STD_PERP,'Advanced Research models use Silinvar components for enhanced precision.'),warn:perpetualWarn()}]},
+    {ref:'5178G-012', name:'Ladies Grand Complication', calibre:'Cal. RTO 27 PS', svg:'grand', imgId:'6178',
+     tags:['perpetual','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Ladies'],
+     complications:[perp(), {icon:'🔔',name:'Minute Repeater',desc:'Ladies grand complication',steps:[{t:'Activate',s:'Slide the repeater slide and release to chime the current time.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when fully wound.'}]},
+    {ref:'7040/250G-001', name:'Ladies Grand Complication', calibre:'Cal. RTO 27 PS', svg:'grand', imgId:'202051',
+     tags:['perpetual','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Ladies'],
+     complications:[perp(), {icon:'🔔',name:'Minute Repeater',desc:'Chimes on demand',steps:[{t:'Activate',s:'Slide the repeater slide and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when fully wound.'}]},
+    {ref:'7047G-001', name:'Ladies Minute Repeater', calibre:'Cal. RTO 27 PS', svg:'grand', imgId:'430994',
+     tags:['repeater'],tagLabels:['Minute Repeater','Ladies','New 2026'],
+     complications:[{icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes on demand',steps:[{t:'Activate',s:'Slide the repeater slide and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when fully wound.'}]},
+    {ref:'5316/50P-001', name:'Grand Complication Pocket Watch', calibre:'Cal. GS AL 36-750 QIS DR (1366 parts)', svg:'pocket', imgId:'6222',
+     tags:['perpetual','repeater','chronograph'],tagLabels:['20 Complications','Minute Repeater','Perpetual Cal.','Split-Seconds'],
+     complications:[{icon:'📅',name:'Perpetual Calendar',desc:'20 complications — requires certified watchmaker',steps:perpetualSteps('dedicated lever','dedicated lever','dedicated lever','dedicated lever','With 1366 components and 20 complications, this watch should only be set by or under guidance from a Patek Philippe certified watchmaker.'),warn:perpetualWarn()}]},
+    {ref:'5322G-001 / 5322G-010', name:'Minute Repeater Perpetual Calendar (2026)', calibre:'Cal. R 27 Q', svg:'grand', imgId:'202268',
+     tags:['perpetual','moonphase','repeater'],tagLabels:['Perpetual Cal.','Minute Repeater','Moon Phase','New 2026'],
+     complications:[mp(), perp(), {icon:'🔔',name:'Minute Repeater',desc:'Chimes hours, quarters, minutes on demand',steps:[{t:'Activate',s:'Slide the repeater slide towards the crown and release.'},{t:'Listen',s:'Hours (low), quarters (low-high double), minutes (high).'}],warn:'Only activate when fully wound.'}]},
+  ]},
+
+  // ── COMPLICATIONS ────────────────────────────────────────────────────────
+  {name:'Complications — Annual Calendar', family:'Complications', watches:[
+    {ref:'5396G-017 / 5396R-011 / 5396R-016', name:'Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'grand', imgId:'202266',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase'],
+     complications:[mp(), ann()]},
+    {ref:'5205G-013 / 5205R-011', name:'Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'grand', imgId:'202437',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase'],
+     complications:[mp(), ann()]},
+    {ref:'5146G / 5146R / 5146P', name:'Annual Calendar with Power Reserve', calibre:'Cal. 324 S IRM QA LU', svg:'grand', imgId:'202437',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Power Reserve'],
+     complications:[mp(), ann('A power reserve indicator at 12 o\'clock shows remaining energy.')]},
+    {ref:'4946G-001 / 4946R-001', name:'Ladies\' Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'grand',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Ladies'],
+     complications:[mp(), ann()]},
+    {ref:'4947/1A-001', name:'Annual Calendar — Stainless Steel', calibre:'Cal. 324 S QA LU', svg:'grand', imgId:'202515',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Steel'],
+     complications:[mp(), ann()]},
+    {ref:'5235/50R-001', name:'Annual Calendar Regulator', calibre:'Cal. 324 S QD', svg:'grand', imgId:'202384',
+     tags:['annual'],tagLabels:['Annual Cal.','Regulator Dial'],
+     complications:[{icon:'📅',name:'Annual Calendar — Regulator Display',desc:'Separate hour, minute, second subdials',steps:[{t:'Understand the regulator layout',s:'The 5235 uses a regulator-style dial: minutes in the centre, hours at 10 o\'clock, seconds at 6 o\'clock. Read all three together for the correct time.'},...annualSteps(...STD_ANNUAL)],warn:annualWarn()}]},
+    {ref:'5212A-001', name:'Calatrava Weekly Calendar', calibre:'Cal. 26-330 S C J', svg:'calatrava', imgId:'202415',
+     tags:['annual'],tagLabels:['Weekly Calendar','Day, Date & Week No.','Steel'],
+     complications:[{icon:'📅',name:'Weekly Calendar',desc:'Day, date and ISO week number',steps:[{t:'Safe window only',s:'Only adjust between <em>8 AM and 6 PM</em>.'},{t:'Set day of week',s:'Use the corrector button between 4-5 o\'clock to advance the day display to <em>' + DOW + '</em>.'},{t:'Set date',s:'Continue pressing until the date shows <em>' + DATE + '</em>.'},{t:'Week number',s:'The week number updates automatically. Verify it matches the current ISO week.'},{t:'Set time',s:'Crown to position 2, set time, push back.'}],warn:'The weekly calendar corrector should not be used between 6 PM and 8 AM.'}]},
+    {ref:'5326G-001', name:'Annual Calendar World Time', calibre:'Cal. 26-330 S C FUS QA', svg:'grand', imgId:'202300',
+     tags:['worldtime','annual','moonphase'],tagLabels:['Annual Cal.','World Time','Moon Phase'],
+     complications:[mp('case-side corrector'), ann(), {icon:'🌍',name:'World Time',desc:'24 simultaneous time zones',steps:worldSteps()}]},
+    {ref:'4948G-010 / 4948R-001', name:'Ladies\' Annual Calendar Chronograph', calibre:'Cal. CH 29-535 PS', svg:'grand',
+     tags:['annual','chronograph'],tagLabels:['Annual Cal.','Chronograph','Ladies'],
+     complications:[ann(), flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+  ]},
+
+  {name:'Complications — Chronograph', family:'Complications', watches:[
+    {ref:'5172G-001 / 5172G-010', name:'Chronograph', calibre:'Cal. CH 29-535 PS', svg:'grand', imgId:'202452',
+     tags:['chronograph'],tagLabels:['Chronograph','Column-Wheel','Flyback'],
+     complications:[flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+    {ref:'5905/1A-001 / 5905R-010', name:'Annual Calendar Flyback Chronograph', calibre:'Cal. CH 28-520 IRM QA', svg:'grand', imgId:'202198',
+     tags:['chronograph','annual','moonphase'],tagLabels:['Annual Cal.','Flyback Chrono','Moon Phase'],
+     complications:[mp('case-side corrector'), ann(), flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+    {ref:'5961R-010 / 5961P-001', name:'Annual Calendar Chronograph', calibre:'Cal. CH 28-520 IRM QA', svg:'grand', imgId:'202164',
+     tags:['chronograph','annual','moonphase'],tagLabels:['Annual Cal.','Flyback Chrono','Moon Phase'],
+     complications:[mp('case-side corrector'), ann(), flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+    {ref:'5249R-001', name:'Annual Calendar Chronograph (2026)', calibre:'Cal. CH 28-520 IRM QA', svg:'grand', imgId:'202164',
+     tags:['chronograph','annual','moonphase'],tagLabels:['Annual Cal.','Flyback Chrono','Moon Phase','New 2026'],
+     complications:[mp('case-side corrector'), ann(), flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+  ]},
+
+  {name:'Complications — World Time & Travel Time', family:'Complications', watches:[
+    {ref:'5930P-001', name:'World Time Flyback Chronograph', calibre:'Cal. CH 28-520 HU', svg:'grand', imgId:'202177',
+     tags:['worldtime','chronograph'],tagLabels:['World Time','Flyback Chrono'],
+     complications:[{icon:'🌍',name:'World Time',desc:'24 time zones simultaneously',steps:worldSteps(),info:'The world time mechanism descends from the 1930s Cottier patent. The 5930 is the first to combine world time with a chronograph.'}, flyback('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock')]},
+    {ref:'5231G-001', name:'World Time — Enamel', calibre:'Cal. 240 HU', svg:'grand', imgId:'202402',
+     tags:['worldtime'],tagLabels:['World Time','Enamel'],
+     complications:[{icon:'🌍',name:'World Time',desc:'Enamel world map city disc, 24 zones',steps:worldSteps(),info:'The cloisonne enamel world map requires over 100 hours of work to produce.'}]},
+    {ref:'5330G-001', name:'World Time Moon Phase', calibre:'Cal. 240 HU LU', svg:'grand', imgId:'202286',
+     tags:['worldtime','moonphase'],tagLabels:['World Time','Moon Phase'],
+     complications:[{icon:'🌍',name:'World Time',desc:'24 simultaneous time zones',steps:worldSteps()}, mp('case-side corrector')]},
+    {ref:'7129J-001', name:'Ladies\' World Time (2026)', calibre:'Cal. 240 HU', svg:'grand',
+     tags:['worldtime'],tagLabels:['World Time','Ladies','New 2026'],
+     complications:[{icon:'🌍',name:'World Time',desc:'24 zones, ladies model',steps:worldSteps()}]},
+    {ref:'7130G-016 / 7130R-014', name:'Ladies\' World Time', calibre:'Cal. 240 HU', svg:'grand',
+     tags:['worldtime'],tagLabels:['World Time','Ladies'],
+     complications:[{icon:'🌍',name:'World Time',desc:'24 zones, ladies dial',steps:worldSteps()}]},
+    {ref:'5224R-001', name:'Travel Time', calibre:'Cal. 215 PS FUS C', svg:'calatrava', imgId:'5828',
+     tags:['travel'],tagLabels:['Travel Time','Two Time Zones'],
+     complications:[{icon:'✈️',name:'Travel Time',desc:'Local and home time display',steps:travelSteps('pusher at 4 o\'clock (advance) / 8 o\'clock (retard)')}]},
+    {ref:'5524G-010 / 5524R-001', name:'Calatrava Pilot Travel Time', calibre:'Cal. 26-330 S C FUS', svg:'calatrava', imgId:'263287',
+     tags:['travel','date'],tagLabels:['Travel Time','Pilot Style','Date'],
+     complications:[{icon:'✈️',name:'Travel Time',desc:'Two time zones with date pointer',steps:travelSteps('pusher at 4 o\'clock (advance) / 10 o\'clock (retard)','Day/night indicators appear for both home and local time zones.')}]},
+    {ref:'5935A-001', name:'Aquanaut Travel Time — Steel', calibre:'Cal. 324 S C FUS', svg:'aquanaut', imgId:'4845',
+     tags:['travel'],tagLabels:['Travel Time','Aquanaut','Steel'],
+     complications:[{icon:'✈️',name:'Travel Time',desc:'Local and home time, day/night',steps:travelSteps('pusher at 4 o\'clock','Note the screw-down crown: unscrew before pulling.')}]},
+  ]},
+
+  {name:'Complications — Other', family:'Complications', watches:[
+    {ref:'5180/1R-001', name:'Tourbillon', calibre:'Cal. TO 28 CR SIR (190 parts)', svg:'calatrava', imgId:'202430',
+     tags:['simple'],tagLabels:['Tourbillon','Skeletonised'],
+     complications:[{icon:'⚙️',name:'Tourbillon',desc:'Visible escapement and tourbillon cage',steps:[{t:'Wind by hand only',s:'Wind gently via the crown until resistance is felt. Do not force.'},{t:'Set the time',s:'Pull crown to position 2 and set hours and minutes.'},{t:'Stop-seconds',s:'Pulling the crown stops the tourbillon for precise synchronisation. Push back at the exact second.'}],info:'The tourbillon cage makes one full rotation per minute, continuously compensating for the effects of gravity on the escapement.'}]},
+    {ref:'5924G-001 / 5924G-010', name:'Ladies\' Annual Calendar', calibre:'Cal. 324 S IRM QA LU', svg:'grand',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Ladies'],
+     complications:[mp('case-side corrector'), ann()]},
+    {ref:'7121/200G-001', name:'Ladies\' Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'grand',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Ladies'],
+     complications:[mp('case-side corrector'), ann()]},
+    {ref:'5328G-001', name:'Calatrava 8 Days', calibre:'Cal. 30-255 PS (new 2025)', svg:'calatrava', imgId:'262948',
+     tags:['simple'],tagLabels:['8-Day Power Reserve','New 2025'],
+     complications:[{icon:'⚙️',name:'8-Day Power Reserve',desc:'Manual wind, 65-hour reserve indicator',steps:[{t:'Wind the watch',s:'Wind via the crown in position 0. The 65-hour power reserve means the watch runs over 2.5 days from full wind.'},{t:'Power reserve indicator',s:'A sector display shows remaining power. Wind fully at least once per week.'},{t:'Set time with stop-seconds',s:'Pull crown to position 2 — seconds stop. Set time, then push back at the exact second.'}],info:'Introduced at Watches and Wonders 2025. New Cal. 30-255 PS is the first new manually wound calibre in several years.'}]},
+    {ref:'5088/100P-001', name:'Calatrava — Skeletonised', calibre:'Cal. 215 PS skeleton', svg:'calatrava', imgId:'202479',
+     tags:['simple'],tagLabels:['Skeletonised','Time Only'],
+     complications:[{icon:'⚙️',name:'Time Setting',desc:'Hand-wound skeletonised movement',steps:[{t:'Wind gently',s:'Skeletonised bridges are more exposed. Wind until first resistance, then stop.'},{t:'Set time',s:'Crown to position 2, set time with stop-seconds, push back.'}]}]},
+    {ref:'5088 — All Enamel Variants', name:'Calatrava — Enamel Dial Variants', calibre:'Cal. 215 PS', svg:'calatrava', imgId:'202479',
+     tags:['simple'],tagLabels:['Enamel Dial','Time Only','Rare Handcrafts'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes, hand-wound',steps:[{t:'Wind',s:'Wind fully via the crown in position 0.'},{t:'Set time',s:'Crown to position 2, set time, push back in.'}],info:'Enamel dial variants use the same movement and setting procedure. The dial variations are purely aesthetic.'}]},
+    {ref:'5924G / 4948R — All Ladies Complication Variants', name:'Ladies\' Complications — Various', calibre:'Cal. 324 S QA LU', svg:'grand',
+     tags:['annual','moonphase','chronograph'],tagLabels:['Annual Cal.','Moon Phase','Chronograph','Ladies'],
+     complications:[mp('case-side corrector'), ann(), {icon:'⏱',name:'Chronograph (where fitted)',desc:'Column-wheel, same procedure as mens models',steps:chronoSteps('top pusher at 2 o\'clock','bottom pusher at 4 o\'clock',false)}]},
+  ]},
+
+  // ── NAUTILUS ─────────────────────────────────────────────────────────────
+  {name:'Nautilus Collection', family:'Nautilus', watches:[
+    {ref:'5811/1G-001 / 5811/1460G-001', name:'Nautilus — Time & Date', calibre:'Cal. 26-330 SC', svg:'nautilus', imgId:'4827',
+     tags:['date'],tagLabels:['Date','White Gold'],
+     complications:[dt(false)]},
+    {ref:'5711/110P-001 / 5711/111P-001 / 5711/112P-001 / 5711/113P-001', name:'Nautilus — Platinum (Discontinued)', calibre:'Cal. 324 SC', svg:'nautilus', imgId:'367149',
+     tags:['date'],tagLabels:['Date','Platinum','Discontinued'],
+     complications:[dt(false)]},
+    {ref:'5810/1G-001 / 5810G-001 / 5610/1P-001', name:'Nautilus — New 2026 Variants', calibre:'Cal. 26-330 SC', svg:'nautilus', imgId:'4827',
+     tags:['date'],tagLabels:['Date','New 2026'],
+     complications:[dt(false)]},
+    {ref:'5712/1R-001', name:'Nautilus Moon Phase Power Reserve', calibre:'Cal. 240 PS IRM C LU', svg:'nautilus', imgId:'4808',
+     tags:['moonphase','date'],tagLabels:['Moon Phase','Power Reserve','Date'],
+     complications:[mp('4-5 o\'clock'), dt(false)]},
+    {ref:'5726A-001 / 5726/1A-014', name:'Nautilus Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'nautilus', imgId:'202222',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase'],
+     complications:[mp(), ann()]},
+    {ref:'5740/1G-001', name:'Nautilus Perpetual Calendar', calibre:'Cal. 240 Q', svg:'nautilus', imgId:'202201',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase'],
+     complications:[mp(), perp()]},
+    {ref:'5980/1400G-010 / 5980/1400R-011 / 5980/60G-001', name:'Nautilus Chronograph', calibre:'Cal. CH 28-520 C', svg:'nautilus', imgId:'393568',
+     tags:['chronograph','date'],tagLabels:['Flyback Chrono','Date'],
+     complications:[{icon:'⏱',name:'Flyback Chronograph',desc:'Flyback with date — pushers at 4 and 8 o\'clock',steps:chronoSteps('top pusher at 4 o\'clock','bottom pusher at 8 o\'clock',true),info:'Pushers at 4 and 8 o\'clock (reversed from most watches) to maintain the integrated case design.'}, dt(false)]},
+    {ref:'5990/1A-011 / 5990/1R-001 / 5990/1400G-001 / 5990/1421G-001 / 5990/1422G-001 / 5990/1423G-001', name:'Nautilus Travel Time Chronograph', calibre:'Cal. CH 28-520 C FUS', svg:'nautilus', imgId:'4858',
+     tags:['travel','chronograph','date'],tagLabels:['Travel Time','Flyback Chrono','Date'],
+     complications:[{icon:'✈️',name:'Travel Time',desc:'Two time zones, day/night',steps:travelSteps('pusher at 10 o\'clock (advance) / 8 o\'clock (retard)')}, {icon:'⏱',name:'Flyback Chronograph',desc:'With 30-minute counter',steps:chronoSteps('top pusher at 4 o\'clock','bottom pusher at 8 o\'clock',true)}]},
+    {ref:'7010/1G-013 / 7010/1R-013 / 7010G-013 / 7010R-013', name:'Nautilus Ladies\' — All Variants', calibre:'Cal. 324 SC', svg:'nautilus',
+     tags:['date'],tagLabels:['Date','Ladies'],
+     complications:[dt(false)]},
+    {ref:'7118/1A-001 / 7118/1A-011 / 7118/1200A-001 / 7118/1200A-011 / 7118/1R-001 / 7118/1R-010 / 7118/1200R-001 / 7118/1200R-010 / 7118/1300R-001 / 7118/1450G-001 / 7118/1450R-001 / 7118/1451G-001 / 7118/1452G-001 / 7118/1453G-001', name:'Nautilus Ladies\' — Full Variant Range', calibre:'Cal. 324 SC', svg:'nautilus',
+     tags:['date'],tagLabels:['Date','Ladies','All Variants'],
+     complications:[dt(false)]},
+    {ref:'5723/1R-001 / 5723/1R-010 / 5723/112R-001', name:'Nautilus Ladies\' Date — Rose Gold', calibre:'Cal. 324 SC', svg:'nautilus',
+     tags:['date'],tagLabels:['Date','Ladies','Rose Gold'],
+     complications:[dt(false)]},
+  ]},
+
+  // ── AQUANAUT ─────────────────────────────────────────────────────────────
+  {name:'Aquanaut Collection', family:'Aquanaut', watches:[
+    {ref:'5167A-001 / 5167R-001', name:'Aquanaut — Date', calibre:'Cal. 324 SC', svg:'aquanaut', imgId:'202472',
+     tags:['date'],tagLabels:['Date','Screw-Down Crown'],
+     complications:[{icon:'📅',name:'Date Display',desc:'Date at 3 o\'clock',steps:dateSteps(true),warn:dateWarn(),info:'Always unscrew the crown before pulling, and screw back down firmly after use.'}]},
+    {ref:'5168G-001 / 5168G-010', name:'Aquanaut — Time Only', calibre:'Cal. 324 SC', svg:'aquanaut', imgId:'202460',
+     tags:['simple'],tagLabels:['Time Only','Screw-Down Crown'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes, screw-down crown',steps:[{t:'Unscrew the crown',s:'Turn crown anticlockwise until it releases.'},{t:'Pull to position 2',s:'Two clicks out.'},{t:'Set time',s:'Turn to set correct hours and minutes.'},{t:'Screw back',s:'Push in fully and screw clockwise until snug.'}]}]},
+    {ref:'5968A-001 / 5968G-001 / 5968G-010 / 5968R-001', name:'Aquanaut Chronograph', calibre:'Cal. CH 28-520 C', svg:'aquanaut', imgId:'202154',
+     tags:['chronograph','date'],tagLabels:['Flyback Chrono','Date'],
+     complications:[{icon:'⏱',name:'Flyback Chronograph',desc:'Flyback — pushers at 4 and 8 o\'clock',steps:[{t:'Unscrew crown first',s:'The Aquanaut has a screw-down crown — unscrew before any adjustment.'},...chronoSteps('pusher at 4 o\'clock','pusher at 8 o\'clock',true)]}]},
+    {ref:'5267/200A-001 / 5267/200A-010 / 5267/200A-011', name:'Aquanaut Annual Calendar', calibre:'Cal. 26-330 S C FUS QA', svg:'aquanaut', imgId:'202362',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase'],
+     complications:[mp('case-side corrector'), ann('Remember to re-screw the crown after setting.')]},
+    {ref:'5268/200R-010 / 5268/461G-001', name:'Aquanaut Chronograph (Ladies)', calibre:'Cal. CH 28-520 C', svg:'aquanaut', imgId:'5772',
+     tags:['chronograph','date'],tagLabels:['Flyback Chrono','Date','Ladies'],
+     complications:[{icon:'⏱',name:'Flyback Chronograph',desc:'Ladies Aquanaut chronograph',steps:[{t:'Unscrew crown first',s:'Unscrew before any adjustment.'},...chronoSteps('pusher at 4 o\'clock','pusher at 8 o\'clock',true)]}]},
+    {ref:'5269R-001', name:'Aquanaut Chronograph (Rose Gold)', calibre:'Cal. CH 28-520 C', svg:'aquanaut', imgId:'202340',
+     tags:['chronograph','date'],tagLabels:['Flyback Chrono','Date','Rose Gold'],
+     complications:[{icon:'⏱',name:'Flyback Chronograph',desc:'Flyback with date',steps:[{t:'Unscrew crown first',s:'Unscrew before any adjustment.'},...chronoSteps('pusher at 4 o\'clock','pusher at 8 o\'clock',true)]}]},
+    {ref:'5261R-001 / 5072R-001', name:'Aquanaut Travel Time (Complicated)', calibre:'Cal. 324 S C FUS', svg:'aquanaut', imgId:'5757',
+     tags:['travel'],tagLabels:['Travel Time','Two Time Zones'],
+     complications:[{icon:'✈️',name:'Travel Time',desc:'Local and home time, day/night',steps:travelSteps('case-side pusher','Unscrew and reseal the crown after any adjustments.')}]},
+    {ref:'7968/300R-001', name:'Aquanaut Ladies\' (Ladies)', calibre:'Cal. E 23 SC', svg:'aquanaut',
+     tags:['simple'],tagLabels:['Time Only','Ladies','Aquanaut'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Ladies Aquanaut',steps:[{t:'Unscrew the crown',s:'Turn anticlockwise until it releases.'},{t:'Set time',s:'Pull to position 2 and set time.'},{t:'Screw back',s:'Push in and screw clockwise until snug.'}]}]},
+  ]},
+
+  // ── CALATRAVA ────────────────────────────────────────────────────────────
+  {name:'Calatrava Collection', family:'Calatrava', watches:[
+    {ref:'5226G-001', name:'Calatrava — Bracelet', calibre:'Cal. 324 SC', svg:'calatrava', imgId:'202407',
+     tags:['date'],tagLabels:['Date','Bracelet'],complications:[dt(false)]},
+    {ref:'5227G-010 / 5227G-015 / 5227J-001 / 5227R-001', name:'Calatrava — Officer Case', calibre:'Cal. 315 SC', svg:'calatrava', imgId:'202401',
+     tags:['date'],tagLabels:['Date','Officer Case','Hunter-Back'],
+     complications:[{icon:'📅',name:'Date Display',desc:'Date at 3 o\'clock',steps:dateSteps(false),warn:dateWarn(),info:'The officer case opens via a latch at 6 o\'clock to reveal the decorated movement.'}]},
+    {ref:'6007G-001 / 6007G-010 / 6007G-011', name:'Calatrava — Open Worked', calibre:'Cal. 215 PS skeleton', svg:'calatrava', imgId:'5706',
+     tags:['simple'],tagLabels:['Time Only','Open Worked'],
+     complications:[{icon:'⚙️',name:'Time Setting',desc:'Hand-wound, open-worked dial',steps:[{t:'Wind gently',s:'Wind via the crown until resistance is felt. Stop immediately.'},{t:'Set time',s:'Crown to position 2, set time, push back.'}]}]},
+    {ref:'6119G-001 / 6119R-001', name:'Calatrava — Classic', calibre:'Cal. 30-255 PS', svg:'calatrava', imgId:'202100',
+     tags:['simple'],tagLabels:['Time Only','8-Day Power Reserve'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours, minutes, sweep seconds',steps:[{t:'Pull crown to position 2',s:'Two clicks out.'},{t:'Stop-seconds',s:'The seconds hand stops when the crown is pulled. Push back at the exact second for precise synchronisation.'},{t:'Set time',s:'Turn to set correct hours and minutes.'},{t:'Push crown in',s:'Push firmly back to the closed position.'}]}]},
+    {ref:'6196P-001', name:'Calatrava 8 Days — Platinum', calibre:'Cal. 30-255 PS', svg:'calatrava', imgId:'263290',
+     tags:['simple'],tagLabels:['8-Day Power Reserve','Platinum'],
+     complications:[{icon:'⚙️',name:'8-Day Power Reserve',desc:'Manual wind, 65-hour reserve',steps:[{t:'Wind the watch',s:'Wind via the crown in position 0. Provides over 2.5 days from full wind.'},{t:'Set time with stop-seconds',s:'Pull crown to position 2 — seconds stop. Set time, push back at exact second.'}]}]},
+    {ref:'4997/200G-001 / 4997/200R-001', name:'Calatrava Ladies\' — Cushion Case', calibre:'Cal. 215 PS', svg:'calatrava',
+     tags:['simple'],tagLabels:['Time Only','Ladies'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes',steps:[{t:'Pull crown to position 2',s:'Two clicks out.'},{t:'Set time',s:'Turn to set correct hours and minutes.'},{t:'Push crown in',s:'Push firmly back.'}]}]},
+    {ref:'7200R-001 / 7200/50G-001 / 7200/50G-012', name:'Calatrava Ladies\' Round', calibre:'Cal. 240', svg:'calatrava',
+     tags:['simple'],tagLabels:['Time Only','Ladies'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes, ultrathin Cal. 240',steps:[{t:'Pull crown to position 2',s:'Two clicks out.'},{t:'Set time',s:'Turn to set correct hours and minutes.'},{t:'Push crown in',s:'Push firmly back.'}],info:'Cal. 240 is only 2.53mm thick — one of the world\'s thinnest automatic movements.'}]},
+  ]},
+
+  // ── GOLDEN ELLIPSE ───────────────────────────────────────────────────────
+  {name:'Golden Ellipse Collection', family:'Golden Ellipse', watches:[
+    {ref:'5738/1R-001 / 5738R-001 / 5738G-001 / 5738/51G-001 / 5738P-001 / 3738/100G-014', name:'Golden Ellipse — All Variants', calibre:'Cal. 240', svg:'golden', imgId:'202220',
+     tags:['simple'],tagLabels:['Time Only','Golden Ratio Case'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes — no date',steps:[{t:'Pull crown to position 2',s:'No date on this model — go straight to time setting.'},{t:'Set time',s:'Turn crown to set hours and minutes.'},{t:'Push crown in',s:'Push firmly back.'}],info:'The case proportions follow the golden ratio (1:1.618). Cal. 240 is just 2.53mm thick — one of the world\'s thinnest automatic movements.'}]},
+  ]},
+
+  // ── GONDOLO ──────────────────────────────────────────────────────────────
+  {name:'Gondolo Collection', family:'Gondolo', watches:[
+    {ref:'7042/100G-010 / 7042/100R-010', name:'Gondolo — Ladies\' Annual Calendar', calibre:'Cal. 324 S QA LU', svg:'gondolo',
+     tags:['annual','moonphase'],tagLabels:['Annual Cal.','Moon Phase','Ladies'],
+     complications:[mp('case-side corrector'), ann()]},
+    {ref:'4962/200R-010', name:'Gondolo — Ladies\' Simple', calibre:'Cal. 215 PS', svg:'gondolo',
+     tags:['simple'],tagLabels:['Time Only','Ladies'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes',steps:[{t:'Pull crown to position 2',s:'Two clicks.'},{t:'Set time',s:'Turn to set hours and minutes.'},{t:'Push back',s:'Push firmly back.'}]}]},
+    {ref:'7041R-001', name:'Gondolo — Ladies\' Tonneau', calibre:'Cal. 215 PS', svg:'gondolo',
+     tags:['simple'],tagLabels:['Time Only','Ladies','Tonneau'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Hours and minutes',steps:[{t:'Pull crown to position 2',s:'Two clicks.'},{t:'Set time',s:'Turn to set hours and minutes.'},{t:'Push back',s:'Push firmly back.'}]}]},
+  ]},
+
+  // ── CUBITUS ──────────────────────────────────────────────────────────────
+  {name:'Cubitus Collection', family:'Cubitus', watches:[
+    {ref:'5821/1A-001 / 5821/1AR-001', name:'Cubitus — Time & Date', calibre:'Cal. 26-330 SC', svg:'cubitus', imgId:'185659',
+     tags:['date'],tagLabels:['Date','Square Case','Steel'],complications:[dt(false)]},
+    {ref:'5822P-001', name:'Cubitus — Grand Date Moon Phase', calibre:'Cal. 240 PS CI J LU', svg:'cubitus', imgId:'185878',
+     tags:['moonphase','date'],tagLabels:['Grand Date','Moon Phase','Day','Platinum'],
+     complications:[mp('case-side corrector'), {icon:'📅',name:'Grand Date and Day',desc:'Jumping grand date aperture',steps:[{t:'Safe window only',s:'Only adjust between <em>8 AM and 6 PM</em>.'},{t:'Set day',s:'Use the day corrector on the case side to advance to <em>' + DOW + '</em>.'},{t:'Set grand date',s:'Use the date corrector to advance the grand date aperture to <em>' + DATE + '</em>. The grand date uses two digit wheels — both must align correctly.'},{t:'Set time',s:'Crown to position 2, set time, push back.'}],warn:'The grand date mechanism must not be corrected between 6 PM and 8 AM.'}]},
+    {ref:'5840P-001', name:'Cubitus Perpetual Calendar Skeleton', calibre:'Cal. 28-28 Q SQU (313 parts)', svg:'cubitus', imgId:'427622',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','Skeleton','Square Calibre'],
+     complications:[mp('case-side corrector'), {icon:'📅',name:'Perpetual Calendar',desc:'Square calibre designed for Cubitus case',steps:perpetualSteps('case corrector','case corrector','case corrector','case corrector','The square calibre 28-28 Q SQU was engineered specifically for this case to eliminate dead space.'),warn:perpetualWarn()}]},
+    {ref:'7128/1G-001 / 7128/1R-001', name:'Cubitus 40 — Time & Date', calibre:'Cal. 26-330 SC', svg:'cubitus', imgId:'263293',
+     tags:['date'],tagLabels:['Date','40mm'],complications:[dt(false)]},
+  ]},
+
+  // ── TWENTY~4 ─────────────────────────────────────────────────────────────
+  {name:'Twenty~4 Ladies\' Collection', family:'Twenty~4', watches:[
+    {ref:'4910/1200A-001 / 4910/1200A-010 / 4910/1200A-011 / 4910/1201R-010', name:'Twenty~4 Quartz', calibre:'Cal. E 15 (quartz)', svg:'twenty4', imgId:'202529',
+     tags:['simple'],tagLabels:['Quartz','Ladies'],
+     complications:[{icon:'🕐',name:'Time Setting (Quartz)',desc:'Quartz movement — battery powered',steps:[{t:'Pull crown to position 2',s:'Pull the crown out two positions.'},{t:'Set time',s:'Turn crown to set hours and minutes. The quartz movement updates in one-second increments.'},{t:'Push crown in',s:'Push firmly back.'}],info:'Battery typically lasts 3-4 years. When the seconds hand begins jumping in 4-second intervals, battery replacement is needed at a service centre.'}]},
+    {ref:'7300/1200A-001 / 7300/1200A-010 / 7300/1200A-011 / 7300/1200R-001 / 7300/1200R-010', name:'Twenty~4 Automatic', calibre:'Cal. 324 SC', svg:'twenty4', imgId:'201919',
+     tags:['date'],tagLabels:['Automatic','Date','Ladies'],complications:[dt(false)]},
+    {ref:'7340/1R-001 / 7340/1R-010', name:'Twenty~4 Perpetual Calendar', calibre:'Cal. 240 Q', svg:'twenty4', imgId:'263296',
+     tags:['perpetual','moonphase'],tagLabels:['Perpetual Cal.','Moon Phase','Ladies'],
+     complications:[mp('case-side corrector'), perp('First ladies\' perpetual calendar wristwatch in the Twenty~4 collection, launched 2025.')]},
+  ]},
+
+  // ── POCKET WATCHES ───────────────────────────────────────────────────────
+  {name:'Pocket Watches', family:'Pocket Watches', watches:[
+    {ref:'973J-001 / 980G-010 / 980J-011 / 980R-001 / 983J-001', name:'Pocket Watch Collection', calibre:'Various (Cal. 17 PS IRM, 29-535 PS)', svg:'pocket',
+     tags:['simple','date'],tagLabels:['Pocket Watch'],
+     complications:[{icon:'🕐',name:'Setting a Pocket Watch',desc:'General guidance for all pocket watch references',steps:[{t:'Open the hunter case (if applicable)',s:'Press the crown-pusher to release the hinged front cover. Some models have a hinged caseback — open via the notch at 6 o\'clock.'},{t:'Wind via the crown',s:'Turn the crown clockwise to wind. Pocket watch mainsprings are larger — wind fully until resistance is felt. Never force past this point.'},{t:'Switch to setting mode',s:'Pocket watches typically use a lever or slide near the crown to switch between winding and setting modes. Consult the specific model\'s instruction booklet.'},{t:'Set the time',s:'Turn the crown in setting mode to set correct hours and minutes.'},{t:'Return to winding mode',s:'Return the lever or slide to the winding position, or push the crown back in.'}],info:'For specific pocket watch instructions, see patek.com/instructions-for-use and select your reference number.'}]},
+    {ref:'958G-001', name:'Nautilus Pocket Watch (2026)', calibre:'Cal. 29-535 PS', svg:'pocket',
+     tags:['simple'],tagLabels:['Pocket Watch','Nautilus Style','New 2026'],
+     complications:[{icon:'🕐',name:'Time Setting',desc:'Nautilus-styled pocket watch',steps:[{t:'Open the case',s:'Press the crown-pusher to release the front cover.'},{t:'Wind',s:'Turn the crown clockwise to wind fully.'},{t:'Set time',s:'Use the lever near the crown to switch to setting mode, then set time with the crown.'},{t:'Return to wind mode',s:'Return the lever to the winding position.'}]}]},
+  ]},
+];
+
+// ── Render ───────────────────────────────────────────────────
+let activeCompFilter = 'all';
+let activeColFilter  = 'all';
+
+function imgErr(el) { el.style.display='none'; el.nextElementSibling.style.display='flex'; }
+function renderLiveBanner() {
+  return '<div class="live-banner">' +
+    '<div class="live-banner-head"><div class="live-dot"></div>Live Reference Data — ' + fmtDate(NOW) + '</div>' +
+    '<div class="live-grid">' +
+    '<div class="live-item"><div class="live-label">Last Full Moon</div><div class="live-value accent">' + fmtDate(lastFull) + '</div></div>' +
+    '<div class="live-item"><div class="live-label">Days Since Full</div><div class="live-value accent">' + DSF + ' day' + (DSF!==1?'s':'') + '</div></div>' +
+    '<div class="live-item"><div class="live-label">Moon Illumination</div><div class="live-value accent">' + ILLUM + '%</div></div>' +
+    '<div class="live-item"><div class="live-label">Day of Week</div><div class="live-value">' + DOW + '</div></div>' +
+    '<div class="live-item"><div class="live-label">Leap Year Cycle</div><div class="live-value">' + LYC + '</div></div>' +
+    '<div class="live-item"><div class="live-label">Month / Year</div><div class="live-value">' + MONTH + ' ' + YEAR + '</div></div>' +
+    '</div>' +
+    '<div class="live-note">✦ All setting instructions (days since full moon, current date, day, month, leap year cycle) update automatically each time you open the app.</div>' +
+    '</div>';
+}
+
+function renderComp(c, wref, ci) {
+  const id = 'c' + wref.replace(/[^a-z0-9]/gi,'') + ci;
+  const stepsHtml = c.steps.map(function(s,i) {
+    return '<div class="step"><div class="step-num">' + String(i+1).padStart(2,'0') + '</div>' +
+      '<div><div class="step-title">' + s.t + '</div><div class="step-text">' + s.s + '</div></div></div>';
+  }).join('');
+  const warnHtml = c.warn ? '<div class="warn-box"><strong>Warning:</strong> ' + c.warn + '</div>' : '';
+  const infoHtml = c.info ? '<div class="info-box"><strong>Note:</strong> ' + c.info + '</div>' : '';
+  return '<div class="complication" id="' + id + '">' +
+    '<div class="comp-header" onclick="toggleComp(\'' + id + '\')">' +
+    '<div class="comp-icon">' + c.icon + '</div>' +
+    '<div class="comp-info"><div class="comp-name">' + c.name + '</div><div class="comp-desc">' + c.desc + '</div></div>' +
+    '<div class="comp-arrow">&#x203A;</div></div>' +
+    '<div class="comp-body"><div class="steps">' + stepsHtml + '</div>' + warnHtml + infoHtml + '</div>' +
+    '</div>';
+}
+
+function renderWatch(w, delay) {
+  const tags = w.tagLabels.map(function(t) { return '<span class="watch-tag">' + t + '</span>'; }).join('');
+  const imgFile = './images/' + (w.imgId||'') + '.jpg';
+  const fallbackSvg = watchSVG(w.svg || w.family || '');
+  const imgHtml = w.imgId
+    ? '<img src="' + imgFile + '" alt="Ref. ' + w.ref + '" loading="lazy" onerror="imgErr(this)">' +
+      '<div class="img-fallback" style="display:none">' + fallbackSvg + '</div>'
+    : '<div class="img-fallback">' + fallbackSvg + '</div>';
+  const compsHtml = w.complications.map(function(c,i) { return renderComp(c, w.ref, i); }).join('');
+  return '<div class="watch-card" style="animation-delay:' + delay + 's">' +
+    '<div class="watch-card-header" onclick="toggleWatch(this)">' +
+    '<div class="watch-img-wrap">' + imgHtml + '</div>' +
+    '<div class="watch-meta">' +
+    '<div class="watch-ref">Ref. ' + w.ref + '</div>' +
+    '<div class="watch-name">' + w.name + '</div>' +
+    '<div class="watch-calibre">' + w.calibre + '</div>' +
+    '<div class="watch-tags">' + tags + '</div>' +
+    '</div>' +
+    '<div class="watch-chevron">&#x203A;</div>' +
+    '</div>' +
+    '<div class="complications-body">' + compsHtml + '</div>' +
+    '</div>';
+}
+
+function toggleWatch(el) { el.closest('.watch-card').classList.toggle('open'); }
+function toggleComp(id) { document.getElementById(id).classList.toggle('open'); }
+
+function filterComp(f, el) {
+  activeCompFilter = f;
+  document.querySelectorAll('#compFilterRow .chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  renderContent('');
+}
+function filterCol(f, el) {
+  activeColFilter = f;
+  document.querySelectorAll('#colFilterRow .chip').forEach(function(c) { c.classList.remove('active'); });
+  el.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  renderContent('');
+}
+function handleSearch(val) {
+  activeCompFilter = 'all';
+  activeColFilter = 'all';
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+  document.querySelector('#compFilterRow .chip').classList.add('active');
+  document.querySelector('#colFilterRow .chip').classList.add('active');
+  renderContent(val.trim().toUpperCase());
+}
+
+function renderContent(search) {
+  search = search || '';
+  const el = document.getElementById('mainContent');
+  let html = renderLiveBanner();
+  let total = 0;
+
+  COLLECTIONS.forEach(function(col) {
+    // Collection filter
+    if (activeColFilter !== 'all' && col.family !== activeColFilter) return;
+
+    let watches = col.watches.filter(function(w) {
+      if (search) {
+        return w.ref.toUpperCase().indexOf(search) >= 0 ||
+               w.name.toUpperCase().indexOf(search) >= 0 ||
+               w.calibre.toUpperCase().indexOf(search) >= 0;
+      }
+      if (activeCompFilter !== 'all') {
+        return w.tags.indexOf(activeCompFilter) >= 0;
+      }
+      return true;
+    });
+
+    if (!watches.length) return;
+    total += watches.length;
+
+    html += '<div class="col-header"><div class="col-line"></div><div class="col-label">' + col.name + '</div><div class="col-line"></div></div>';
+    watches.forEach(function(w, i) { html += renderWatch(w, i * 0.04); });
+  });
+
+  if (!total) {
+    html += '<div class="empty-state"><div class="empty-icon">⌚</div>' +
+      '<div class="empty-title">Reference Not Found</div>' +
+      '<div class="empty-sub">Try a different reference number or use the filters above.<br><br>' +
+      'Official instruction booklets at <a href="https://www.patek.com/en/service/taking-care-of-your-watch/instructions-for-use" target="_blank">patek.com/instructions-for-use</a></div></div>';
+  }
+  el.innerHTML = html;
+}
+
+renderContent('');
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./sw.js').catch(function() {});
+  });
+}
+
+</script>
+</body>
+</html>
