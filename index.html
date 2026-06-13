@@ -1643,16 +1643,29 @@ function importClientData(input) {
   if (!file) return;
   var reader = new FileReader();
   reader.onload = function(e) {
+    var raw = String(e.target.result || '').replace(/^\uFEFF/, '').trim();
     var data;
     try {
-      data = JSON.parse(e.target.result);
+      data = JSON.parse(raw);
     } catch (err) {
-      alert('That file could not be read as valid client data.');
+      alert('That file could not be read as valid JSON.');
       input.value = '';
       return;
     }
+    // Handle a JSON file that itself contains a JSON string (double-encoded)
+    if (typeof data === 'string') {
+      try { data = JSON.parse(data); } catch (err2) {}
+    }
+    // Handle a wrapper object like { "clients": [...] }
+    if (data && !Array.isArray(data) && Array.isArray(data.clients)) {
+      data = data.clients;
+    }
+    // Handle a single exported client object instead of an array
+    if (data && !Array.isArray(data) && typeof data === 'object' && data.id) {
+      data = [data];
+    }
     if (!Array.isArray(data)) {
-      alert('That file does not look like a client data export.');
+      alert('That file does not look like a client data export. (Expected a list of clients, got: ' + (Array.isArray(data) ? 'array' : typeof data) + ')');
       input.value = '';
       return;
     }
