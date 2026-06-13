@@ -1,6 +1,6 @@
 // Complication Setting Guide - Service Worker
 // Bump CACHE_VERSION on every deploy to force clients to fetch fresh assets.
-const CACHE_VERSION = 'v4';
+const CACHE_VERSION = 'v5';
 const CACHE_NAME = 'csg-cache-' + CACHE_VERSION;
 
 const APP_SHELL = [
