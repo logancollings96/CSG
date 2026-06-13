@@ -1,23 +1,93 @@
-const CACHE = 'watch-guide-v1';
-const ASSETS = ['./index.html','./manifest.json'];
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(ASSETS)));
-  self.skipWaiting();
+// Complication Setting Guide - Service Worker
+// Bump CACHE_VERSION on every deploy to force clients to fetch fresh assets.
+const CACHE_VERSION = 'v4';
+const CACHE_NAME = 'csg-cache-' + CACHE_VERSION;
+
+const APP_SHELL = [
+  './',
+  './index.html',
+  './manifest.json',
+  './icon-192.png',
+  './icon-512.png'
+];
+
+// Allow the page to tell a waiting worker to activate immediately
+self.addEventListener('message', function (event) {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
-self.addEventListener('activate', e => {
-  e.waitUntil(caches.keys().then(keys =>
-    Promise.all(keys.filter(k => k !== CACHE).map(k => caches.delete(k)))
-  ));
-  self.clients.claim();
+
+// Install: pre-cache the app shell and activate immediately
+self.addEventListener('install', function (event) {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(function (cache) {
+      return cache.addAll(APP_SHELL);
+    }).then(function () {
+      return self.skipWaiting();
+    })
+  );
 });
-self.addEventListener('fetch', e => {
-  const url = new URL(e.request.url);
-  if (url.hostname.includes('cloudinary') || url.hostname.includes('fonts.g')) {
-    e.respondWith(fetch(e.request).then(res => {
-      caches.open(CACHE).then(c => c.put(e.request, res.clone()));
-      return res;
-    }).catch(() => caches.match(e.request)));
+
+// Activate: delete any old versioned caches, then take control of open pages
+self.addEventListener('activate', function (event) {
+  event.waitUntil(
+    caches.keys().then(function (keys) {
+      return Promise.all(
+        keys.map(function (key) {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      );
+    }).then(function () {
+      return self.clients.claim();
+    })
+  );
+});
+
+// Fetch strategy:
+// - Images (/images/ folder): network-first, fall back to cache, then nothing
+// - Everything else (app shell, HTML, JS, CSS): cache-first, fall back to network,
+//   and update the cache in the background with the latest network response
+self.addEventListener('fetch', function (event) {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+
+  // Network-first for watch images
+  if (url.pathname.indexOf('/images/') !== -1) {
+    event.respondWith(
+      fetch(req).then(function (networkResponse) {
+        const clone = networkResponse.clone();
+        caches.open(CACHE_NAME).then(function (cache) {
+          cache.put(req, clone);
+        });
+        return networkResponse;
+      }).catch(function () {
+        return caches.match(req);
+      })
+    );
     return;
   }
-  e.respondWith(caches.match(e.request).then(cached => cached || fetch(e.request)));
+
+  // Cache-first for everything else (app shell)
+  event.respondWith(
+    caches.match(req).then(function (cachedResponse) {
+      const networkFetch = fetch(req).then(function (networkResponse) {
+        if (networkResponse && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(function (cache) {
+            cache.put(req, clone);
+          });
+        }
+        return networkResponse;
+      }).catch(function () {
+        return cachedResponse;
+      });
+
+      return cachedResponse || networkFetch;
+    })
+  );
 });

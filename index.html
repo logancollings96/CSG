@@ -367,6 +367,102 @@ html[data-theme="light"]{
 }
 .col-dot{width:8px;height:8px;border-radius:50%;background:var(--hc);flex-shrink:0}
 
+/* ── Client CRM ── */
+#clientPanel{display:none}
+body.clientmode .search-wrap,body.clientmode .filter-wrap,body.clientmode .content,
+body.clientmode .footer,body.clientmode #handoverPanel{display:none}
+body.clientmode #clientPanel{
+  display:block;max-width:620px;margin:0 auto;
+  padding:calc(1rem + var(--sat)) 1.1rem calc(6.2rem + var(--sab));
+  animation:fadeUp 0.4s var(--ease) both;
+}
+.client-header{display:flex;align-items:center;justify-content:space-between;gap:0.8rem;margin:0.3rem 0 1rem}
+.client-title{font-size:1.3rem;font-weight:700;color:var(--text);letter-spacing:-0.02em}
+.client-add-btn{
+  flex-shrink:0;height:38px;border-radius:19px;border:none;
+  background:var(--accent);color:#fff;font-family:var(--font);
+  font-size:0.74rem;font-weight:600;letter-spacing:0.01em;
+  padding:0 1rem;cursor:pointer;transition:transform 0.2s var(--ease);white-space:nowrap;
+}
+.client-add-btn:active{transform:scale(0.95)}
+.client-search-row{margin-bottom:1rem}
+.client-card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-lg);
+  padding:0.9rem 1rem;margin-bottom:0.6rem;cursor:pointer;
+  display:flex;align-items:center;justify-content:space-between;gap:0.7rem;
+  backdrop-filter:blur(20px) saturate(160%);-webkit-backdrop-filter:blur(20px) saturate(160%);
+  animation:fadeUp 0.4s var(--ease) both;
+  transition:border-color 0.25s var(--ease);
+}
+.client-card:active{border-color:var(--border-hi)}
+.client-card-name{font-size:0.95rem;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.client-card-sub{font-size:0.74rem;color:var(--text-3);margin-top:0.2rem}
+.client-card-badge{
+  flex-shrink:0;min-width:24px;height:24px;border-radius:12px;
+  background:var(--accent-dim);color:var(--accent);
+  font-size:0.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 0.5rem;
+}
+.client-back{
+  display:inline-flex;align-items:center;gap:0.4rem;color:var(--text-2);
+  font-size:0.78rem;font-weight:600;background:none;border:none;cursor:pointer;
+  padding:0.5rem 0;margin-bottom:0.6rem;font-family:var(--font);
+}
+.client-back:active{color:var(--accent)}
+.field-group{margin-bottom:0.7rem}
+.field-label{
+  font-size:0.6rem;font-weight:600;letter-spacing:0.08em;color:var(--text-3);
+  text-transform:uppercase;margin-bottom:0.35rem;display:block;
+}
+.field-input,.field-select,.field-textarea{
+  width:100%;background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);
+  color:var(--text);font-family:var(--font);font-size:0.88rem;font-weight:500;
+  padding:0.7rem 0.9rem;outline:none;box-sizing:border-box;
+  transition:border-color 0.25s var(--ease);appearance:none;-webkit-appearance:none;
+}
+.field-input:focus,.field-select:focus,.field-textarea:focus{border-color:var(--accent)}
+.field-textarea{resize:vertical;min-height:64px;font-weight:400;line-height:1.5;font-family:var(--font)}
+.field-row{display:flex;gap:0.6rem}
+.field-row .field-group{flex:1;min-width:0}
+.btn-row{display:flex;gap:0.6rem;margin-top:1.2rem}
+.btn{
+  flex:1;height:44px;border-radius:22px;border:none;
+  font-family:var(--font);font-size:0.8rem;font-weight:600;cursor:pointer;
+  transition:transform 0.2s var(--ease);
+}
+.btn:active{transform:scale(0.96)}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-secondary{background:var(--glass);color:var(--text-2);border:1px solid var(--border)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)}
+.section-label{
+  font-size:0.64rem;font-weight:700;letter-spacing:0.1em;color:var(--text-3);
+  text-transform:uppercase;margin:1.5rem 0.1rem 0.7rem;
+}
+.interest-card{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:0.85rem 0.95rem;margin-bottom:0.55rem;
+}
+.interest-top{display:flex;align-items:flex-start;justify-content:space-between;gap:0.6rem}
+.interest-ref{font-size:0.68rem;font-weight:700;color:var(--accent);letter-spacing:0.03em;margin-bottom:0.1rem}
+.interest-name{font-size:0.86rem;font-weight:600;color:var(--text);letter-spacing:-0.01em}
+.interest-del{background:none;border:none;color:var(--text-3);font-size:0.85rem;cursor:pointer;padding:0.2rem;flex-shrink:0}
+.interest-del:active{color:var(--danger)}
+.interest-status-row{display:flex;align-items:center;gap:0.5rem;margin-top:0.55rem;flex-wrap:wrap}
+.status-select{width:auto;flex:0 0 auto;padding:0.35rem 0.6rem;font-size:0.7rem}
+.status-chip{
+  display:inline-flex;align-items:center;
+  font-size:0.62rem;font-weight:600;letter-spacing:0.02em;
+  padding:0.28rem 0.6rem;border-radius:10px;text-transform:uppercase;
+  color:var(--hc);background:color-mix(in srgb,var(--hc) 12%,transparent);
+  border:1px solid color-mix(in srgb,var(--hc) 28%,transparent);
+}
+.status-chip::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--hc);margin-right:6px}
+.interest-notes{font-size:0.78rem;color:var(--text-2);line-height:1.55;margin-top:0.5rem}
+.interest-date{font-size:0.62rem;color:var(--text-3);margin-top:0.45rem}
+.add-interest-form{
+  background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);
+  padding:0.9rem;margin-top:0.6rem;
+}
+
 /* ── Segmented view control ── */
 .seg{
   display:flex;flex-shrink:0;background:var(--glass);border:1px solid var(--border);
@@ -390,16 +486,21 @@ html[data-theme="light"]{
   -webkit-tap-highlight-color:transparent;
 }
 .gcard:active{transform:scale(0.97)}
-html[data-theme="dark"] .gcard-bg{filter:blur(18px) brightness(0.52) saturate(1.3)}
-html[data-theme="light"] .gcard-bg{filter:blur(18px) brightness(1.04) saturate(1.1)}
 .gcard-bg{
-  position:absolute;inset:-14%;width:128%;height:128%;object-fit:cover;
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
   transition:transform 0.5s var(--ease);
 }
 .gcard:active .gcard-bg{transform:scale(1.06)}
+.gcard-blur{
+  position:absolute;inset:0;
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  -webkit-mask-image:linear-gradient(180deg,transparent 0%,transparent 42%,rgba(0,0,0,1) 80%);
+  mask-image:linear-gradient(180deg,transparent 0%,transparent 42%,rgba(0,0,0,1) 80%);
+  pointer-events:none;
+}
 .gcard-veil{position:absolute;inset:0}
-html[data-theme="dark"] .gcard-veil{background:linear-gradient(180deg,rgba(0,0,0,0.05) 30%,rgba(0,0,0,0.72) 85%)}
-html[data-theme="light"] .gcard-veil{background:linear-gradient(180deg,rgba(255,255,255,0.10) 30%,rgba(255,255,255,0.88) 85%)}
+html[data-theme="dark"] .gcard-veil{background:linear-gradient(180deg,rgba(0,0,0,0) 42%,rgba(0,0,0,0.62) 80%)}
+html[data-theme="light"] .gcard-veil{background:linear-gradient(180deg,rgba(255,255,255,0) 42%,rgba(255,255,255,0.78) 80%)}
 .gcard.nopic{background:linear-gradient(165deg,color-mix(in srgb,var(--hc,var(--accent)) 22%,transparent),transparent 70%)}
 .gcard-top{position:absolute;top:0.6rem;left:0.6rem;right:0.6rem;display:flex;z-index:2}
 .gcard-tag{
@@ -492,6 +593,7 @@ html[data-theme="dark"] .sheet-img img{mix-blend-mode:lighten}
   <div class="header-date" id="headerDate"></div>
 </div>
 <div id="handoverPanel"></div>
+<div id="clientPanel"></div>
 <div class="search-wrap">
   <div class="search-eyebrow">✦ Find your reference</div>
   <div class="search-row">
@@ -1235,6 +1337,346 @@ function toggleHandover() {
   haptic(15);
 }
 
+// ── Client CRM ───────────────────────────────────────────────
+var CLIENTS = [];
+try {
+  var storedClients = localStorage.getItem('csg-clients');
+  if (storedClients) CLIENTS = JSON.parse(storedClients);
+} catch(e) {}
+
+var clientView = { mode: 'list', id: null, search: '' };
+
+var INTEREST_STATUSES = [
+  {key:'Interested', hue:'hue-blue'},
+  {key:'Quoted', hue:'hue-amber'},
+  {key:'On Order', hue:'hue-violet'},
+  {key:'Purchased', hue:'hue-green'},
+  {key:'Declined', hue:'hue-grey'}
+];
+
+var CLIENT_SOURCES = ['Walk-in','Referral','Repeat Client','Event','Online Enquiry','Other'];
+
+function saveClients() {
+  try { localStorage.setItem('csg-clients', JSON.stringify(CLIENTS)); } catch(e) {}
+}
+
+function uid() {
+  return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+function statusHue(status) {
+  for (var i=0;i<INTEREST_STATUSES.length;i++) {
+    if (INTEREST_STATUSES[i].key === status) return INTEREST_STATUSES[i].hue;
+  }
+  return 'hue-grey';
+}
+
+function escHtml(s) {
+  return String(s == null ? '' : s).replace(/[&<>]/g, function(c) {
+    if (c === '&') return '&amp;';
+    if (c === '<') return '&lt;';
+    return '&gt;';
+  });
+}
+function escAttr(s) {
+  return escHtml(s).replace(/"/g, '&quot;');
+}
+
+function renderClientTab() {
+  if (clientView.mode === 'detail' && clientView.id) {
+    renderClientDetail(clientView.id);
+  } else {
+    renderClientList();
+  }
+}
+
+function clientSearch(val) {
+  clientView.search = val.trim().toLowerCase();
+  renderClientList();
+}
+
+function renderClientList() {
+  var el = document.getElementById('clientPanel');
+  var search = clientView.search || '';
+  var list = CLIENTS.slice();
+  list.sort(function(a,b) { return (b.updatedAt||0) - (a.updatedAt||0); });
+  if (search) {
+    list = list.filter(function(c) {
+      return (c.name||'').toLowerCase().indexOf(search) >= 0 ||
+             (c.phone||'').toLowerCase().indexOf(search) >= 0 ||
+             (c.email||'').toLowerCase().indexOf(search) >= 0;
+    });
+  }
+
+  var html = '<div class="client-header">' +
+    '<div class="client-title">Clients</div>' +
+    '<button class="client-add-btn" onclick="newClient()">+ New Client</button>' +
+    '</div>' +
+    '<div class="client-search-row">' +
+    '<input class="search-input" style="width:100%;box-sizing:border-box" type="text" ' +
+    'placeholder="Search by name, phone or email" value="' + escAttr(clientView.search) + '" ' +
+    'oninput="clientSearch(this.value)"/></div>';
+
+  if (!list.length) {
+    html += '<div class="empty-state"><div class="empty-icon">' + (search ? '\u{1F50D}' : '\u{1F464}') + '</div>' +
+      '<div class="empty-title">' + (search ? 'No clients found' : 'No clients yet') + '</div>' +
+      '<div class="empty-sub">' + (search ?
+        'Try a different name, phone number or email.' :
+        'Tap "+ New Client" to create your first client profile and start logging expressions of interest.') +
+      '</div></div>';
+  } else {
+    list.forEach(function(c) {
+      var interestCount = (c.interests || []).length;
+      var sub = [];
+      if (c.phone) sub.push(c.phone);
+      if (c.email) sub.push(c.email);
+      html += '<div class="client-card" onclick="openClient(\'' + c.id + '\')">' +
+        '<div><div class="client-card-name">' + escHtml(c.name || 'Unnamed client') + '</div>' +
+        (sub.length ? '<div class="client-card-sub">' + escHtml(sub.join(' \u00B7 ')) + '</div>' : '') +
+        '</div>' +
+        (interestCount ? '<div class="client-card-badge">' + interestCount + '</div>' : '') +
+        '</div>';
+    });
+  }
+  el.innerHTML = html;
+}
+
+function newClient() {
+  var c = {
+    id: uid(),
+    name: '',
+    phone: '',
+    email: '',
+    source: 'Walk-in',
+    notes: '',
+    interests: [],
+    createdAt: Date.now(),
+    updatedAt: Date.now()
+  };
+  CLIENTS.push(c);
+  saveClients();
+  openClient(c.id);
+}
+
+function openClient(id) {
+  clientView.mode = 'detail';
+  clientView.id = id;
+  renderClientDetail(id);
+  haptic(10);
+}
+
+function backToClientList() {
+  clientView.mode = 'list';
+  clientView.id = null;
+  renderClientList();
+  haptic(10);
+}
+
+function updateClientField(id, field, value) {
+  var c = CLIENTS.find(function(x) { return x.id === id; });
+  if (!c) return;
+  c[field] = value;
+  c.updatedAt = Date.now();
+  saveClients();
+  if (field === 'name') renderClientDetailHeaderOnly(id);
+}
+
+// Lightweight re-render of just the back label area is unnecessary since the
+// header is static — kept as a no-op hook for future use.
+function renderClientDetailHeaderOnly(id) {}
+
+function deleteClient(id) {
+  if (!confirm('Delete this client and all their expressions of interest? This cannot be undone.')) return;
+  CLIENTS = CLIENTS.filter(function(c) { return c.id !== id; });
+  saveClients();
+  backToClientList();
+}
+
+function renderClientDetail(id) {
+  var c = CLIENTS.find(function(x) { return x.id === id; });
+  var el = document.getElementById('clientPanel');
+  if (!c) { backToClientList(); return; }
+
+  var html = '<button class="client-back" onclick="backToClientList()">\u2190 All Clients</button>';
+
+  html += '<div class="field-group"><label class="field-label">Name</label>' +
+    '<input class="field-input" type="text" placeholder="Client name" value="' + escAttr(c.name) + '" ' +
+    'onchange="updateClientField(\'' + c.id + '\',\'name\',this.value)"/></div>';
+
+  html += '<div class="field-row">' +
+    '<div class="field-group"><label class="field-label">Phone</label>' +
+    '<input class="field-input" type="tel" placeholder="0400 000 000" value="' + escAttr(c.phone) + '" ' +
+    'onchange="updateClientField(\'' + c.id + '\',\'phone\',this.value)"/></div>' +
+    '<div class="field-group"><label class="field-label">Email</label>' +
+    '<input class="field-input" type="email" placeholder="email@example.com" value="' + escAttr(c.email) + '" ' +
+    'onchange="updateClientField(\'' + c.id + '\',\'email\',this.value)"/></div>' +
+    '</div>';
+
+  html += '<div class="field-group"><label class="field-label">Source</label>' +
+    '<select class="field-select" onchange="updateClientField(\'' + c.id + '\',\'source\',this.value)">' +
+    CLIENT_SOURCES.map(function(s) {
+      return '<option value="' + s + '"' + (c.source === s ? ' selected' : '') + '>' + s + '</option>';
+    }).join('') +
+    '</select></div>';
+
+  html += '<div class="field-group"><label class="field-label">Notes</label>' +
+    '<textarea class="field-textarea" placeholder="Preferences, sizing, conversation notes..." ' +
+    'onchange="updateClientField(\'' + c.id + '\',\'notes\',this.value)">' + escHtml(c.notes) + '</textarea></div>';
+
+  html += '<div class="section-label">Expressions of Interest</div>';
+
+  var interests = (c.interests || []).slice().sort(function(a,b) { return (b.createdAt||0) - (a.createdAt||0); });
+  if (!interests.length) {
+    html += '<div class="empty-sub" style="padding:0.2rem 0 0.4rem">No expressions of interest logged yet.</div>';
+  } else {
+    interests.forEach(function(it) {
+      html += '<div class="interest-card">' +
+        '<div class="interest-top"><div>' +
+        (it.ref ? '<div class="interest-ref">' + escHtml(it.ref) + '</div>' : '') +
+        '<div class="interest-name">' + escHtml(it.watchName || 'Unspecified model') + '</div>' +
+        '</div>' +
+        '<button class="interest-del" onclick="deleteInterest(\'' + c.id + '\',\'' + it.id + '\')">\u2715</button>' +
+        '</div>' +
+        '<div class="interest-status-row">' +
+        '<span class="status-chip ' + statusHue(it.status) + '">' + escHtml(it.status) + '</span>' +
+        '<select class="field-select status-select" onchange="updateInterestStatus(\'' + c.id + '\',\'' + it.id + '\',this.value)">' +
+        INTEREST_STATUSES.map(function(s) {
+          return '<option value="' + s.key + '"' + (it.status === s.key ? ' selected' : '') + '>' + s.key + '</option>';
+        }).join('') +
+        '</select>' +
+        '</div>' +
+        (it.notes ? '<div class="interest-notes">' + escHtml(it.notes) + '</div>' : '') +
+        '<div class="interest-date">Added ' + fmtDate(new Date(it.createdAt)) + '</div>' +
+        '</div>';
+    });
+  }
+
+  html += '<div class="add-interest-form">' +
+    '<label class="field-label">Add Expression of Interest</label>' +
+    '<div class="field-row">' +
+    '<div class="field-group"><input class="field-input" id="newIntRef" type="text" placeholder="Ref. no. e.g. 5712/1A"/></div>' +
+    '<div class="field-group"><input class="field-input" id="newIntName" type="text" placeholder="Model e.g. Nautilus"/></div>' +
+    '</div>' +
+    '<div class="field-group"><select class="field-select" id="newIntStatus">' +
+    INTEREST_STATUSES.map(function(s,i) {
+      return '<option value="' + s.key + '"' + (i === 0 ? ' selected' : '') + '>' + s.key + '</option>';
+    }).join('') +
+    '</select></div>' +
+    '<div class="field-group" style="margin-bottom:0"><textarea class="field-textarea" id="newIntNotes" ' +
+    'placeholder="Notes — strap, sizing, allocation, timeframe..."></textarea></div>' +
+    '<div class="btn-row" style="margin-top:0.8rem"><button class="btn btn-primary" onclick="addInterest(\'' + c.id + '\')">Add to Profile</button></div>' +
+    '</div>';
+
+  html += '<div class="btn-row"><button class="btn btn-danger" onclick="deleteClient(\'' + c.id + '\')">Delete Client</button></div>';
+
+  el.innerHTML = html;
+}
+
+function addInterest(clientId) {
+  var c = CLIENTS.find(function(x) { return x.id === clientId; });
+  if (!c) return;
+  var refEl = document.getElementById('newIntRef');
+  var nameEl = document.getElementById('newIntName');
+  var statusEl = document.getElementById('newIntStatus');
+  var notesEl = document.getElementById('newIntNotes');
+  var ref = refEl.value.trim();
+  var name = nameEl.value.trim();
+  if (!ref && !name) { haptic(10); return; }
+  if (!c.interests) c.interests = [];
+  c.interests.push({
+    id: uid(),
+    ref: ref,
+    watchName: name,
+    status: statusEl.value,
+    notes: notesEl.value.trim(),
+    createdAt: Date.now()
+  });
+  c.updatedAt = Date.now();
+  saveClients();
+  renderClientDetail(clientId);
+  haptic(15);
+}
+
+function updateInterestStatus(clientId, interestId, status) {
+  var c = CLIENTS.find(function(x) { return x.id === clientId; });
+  if (!c) return;
+  var it = (c.interests || []).find(function(x) { return x.id === interestId; });
+  if (!it) return;
+  it.status = status;
+  c.updatedAt = Date.now();
+  saveClients();
+  renderClientDetail(clientId);
+}
+
+function deleteInterest(clientId, interestId) {
+  var c = CLIENTS.find(function(x) { return x.id === clientId; });
+  if (!c) return;
+  c.interests = (c.interests || []).filter(function(x) { return x.id !== interestId; });
+  c.updatedAt = Date.now();
+  saveClients();
+  renderClientDetail(clientId);
+}
+
+function exportClientData() {
+  var data = JSON.stringify(CLIENTS, null, 2);
+  var blob = new Blob([data], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var d = new Date();
+  var pad = function(n) { return n < 10 ? '0' + n : '' + n; };
+  var stamp = d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'csg-clients-' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function() { URL.revokeObjectURL(url); }, 1000);
+  haptic(15);
+}
+
+function triggerClientImport() {
+  document.getElementById('clientImportInput').click();
+}
+
+function importClientData(input) {
+  var file = input.files && input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var data;
+    try {
+      data = JSON.parse(e.target.result);
+    } catch (err) {
+      alert('That file could not be read as valid client data.');
+      input.value = '';
+      return;
+    }
+    if (!Array.isArray(data)) {
+      alert('That file does not look like a client data export.');
+      input.value = '';
+      return;
+    }
+    var added = 0, updated = 0;
+    data.forEach(function(item) {
+      if (!item || !item.id) return;
+      var existing = CLIENTS.find(function(c) { return c.id === item.id; });
+      if (existing) {
+        Object.assign(existing, item);
+        updated++;
+      } else {
+        CLIENTS.push(item);
+        added++;
+      }
+    });
+    saveClients();
+    input.value = '';
+    alert('Import complete: ' + added + ' client(s) added, ' + updated + ' updated.');
+    haptic(15);
+  };
+  reader.readAsText(file);
+}
+
+
 function imgErr(el) { el.style.display='none'; el.nextElementSibling.style.display='flex'; }
 function renderLiveBanner() {
   return '<div class="live-banner">' +
@@ -1359,6 +1801,7 @@ function renderGridCard(w, colFamily, delay) {
   var firstTag = w.tagLabels && w.tagLabels[0] ? w.tagLabels[0] : '';
   return '<div class="gcard ' + hue + nopicClass + '" style="animation-delay:' + delay + 's" onclick="openSheet(' + "'" + w.ref.replace(/'/g,"\\'") + "'" + ')">' +
     bgHtml +
+    '<div class="gcard-blur"></div>' +
     '<div class="gcard-veil"></div>' +
     (firstTag ? '<div class="gcard-top"><div class="gcard-tag ' + hue + '">' + firstTag + '</div></div>' : '') +
     '<div class="gcard-info">' +
@@ -1408,21 +1851,21 @@ function navTo(tab, el) {
   document.querySelector('.filter-wrap').style.display = isBrowse ? '' : 'none';
   document.getElementById('mainContent').style.display = isBrowse ? '' : 'none';
   document.querySelector('.footer').style.display = isBrowse ? '' : 'none';
-  // handover
+  // restore the watch list if we're navigating back to Browse (e.g. away from Settings)
+  if (isBrowse) {
+    renderContent(document.getElementById('searchInput').value.trim().toUpperCase());
+  }
+  // moon data
+  document.body.classList.toggle('handover', isMoon);
+  if (isMoon) renderHandover();
+  // client CRM
+  document.body.classList.toggle('clientmode', isClient);
   if (isClient) {
-    document.body.classList.add('handover');
-    renderHandover();
     document.querySelector('.search-wrap').style.display = 'none';
     document.querySelector('.filter-wrap').style.display = 'none';
     document.getElementById('mainContent').style.display = 'none';
     document.querySelector('.footer').style.display = 'none';
-  } else {
-    document.body.classList.remove('handover');
-  }
-  // moon data — reuse handover panel but with browse still hidden
-  if (isMoon) {
-    document.body.classList.add('handover');
-    renderHandover();
+    renderClientTab();
   }
   // settings tab
   if (tab === 'settings') {
@@ -1440,6 +1883,15 @@ function navTo(tab, el) {
       '<span style="font-weight:600;font-size:0.88rem;color:var(--text)">Default View</span>' +
       '<div class="seg"><button class="seg-btn' + (viewMode==='list'?' active':'') + '" onclick="setView(\'list\');navTo(\'settings\',document.getElementById(\'navSettings\'))">List</button>' +
       '<button class="seg-btn' + (viewMode==='grid'?' active':'') + '" onclick="setView(\'grid\');navTo(\'settings\',document.getElementById(\'navSettings\'))">Grid</button></div>' +
+      '</div>' +
+      '<div style="background:var(--glass);border:1px solid var(--border);border-radius:var(--r-md);padding:1rem;margin-bottom:0.8rem;text-align:left">' +
+      '<div style="font-weight:600;font-size:0.88rem;color:var(--text);margin-bottom:0.2rem">Client Data</div>' +
+      '<div style="font-size:0.74rem;color:var(--text-3);margin-bottom:0.9rem;line-height:1.5">Back up or restore your client profiles and expressions of interest. This data is stored only on this device.</div>' +
+      '<div class="btn-row" style="margin-top:0">' +
+      '<button class="btn btn-secondary" onclick="exportClientData()">Export</button>' +
+      '<button class="btn btn-secondary" onclick="triggerClientImport()">Import</button>' +
+      '</div>' +
+      '<input type="file" id="clientImportInput" accept="application/json" style="display:none" onchange="importClientData(this)"/>' +
       '</div>' +
       '<div style="font-size:0.72rem;color:var(--text-3);line-height:1.7;margin-top:2rem">Complication Setting Guide<br>wristref.com<br><br>All instructions update automatically each day.</div>' +
       '</div>';
@@ -1495,8 +1947,31 @@ function renderContent(search) {
 renderContent('');
 
 if ('serviceWorker' in navigator) {
+  var refreshing = false;
+
+  // When the new service worker takes control, reload once to load fresh assets
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (refreshing) return;
+    refreshing = true;
+    window.location.reload();
+  });
+
   window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./sw.js').catch(function() {});
+    navigator.serviceWorker.register('./sw.js').then(function(reg) {
+      // Check for an updated service worker on every load
+      reg.update();
+
+      // If an update is found while we're already running, activate it immediately
+      reg.addEventListener('updatefound', function() {
+        var newWorker = reg.installing;
+        if (!newWorker) return;
+        newWorker.addEventListener('statechange', function() {
+          if (newWorker.state === 'installed' && reg.waiting) {
+            newWorker.postMessage({ type: 'SKIP_WAITING' });
+          }
+        });
+      });
+    }).catch(function() {});
   });
 }
 
